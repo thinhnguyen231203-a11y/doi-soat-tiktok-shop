@@ -1,0 +1,1097 @@
+<!doctype html>
+<!--
+  ỨNG DỤNG ĐỐI SOÁT TIKTOK SHOP
+  Tác giả / Chủ sở hữu : Thịnh Nguyễn
+  Mã định danh         : TN-88025F2F-6D2D8BAA
+  Ngày tạo             : 17/11/2026
+  © 2026 Thịnh Nguyễn. Bảo lưu mọi quyền.
+-->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Thịnh Nguyễn">
+<meta name="copyright" content="© 2026 Thịnh Nguyễn">
+<meta name="app-id" content="TN-88025F2F-6D2D8BAA">
+<title>Đối soát TikTok Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --side:#ffffff; --text:#111827; --muted:#6b7280; --faint:#9ca3af; --line:#eceef2;
+  --accent:#4f46e5; --accent-soft:#eef0ff;
+  --pos:#059669; --pos-soft:#e7f7f0; --neg:#dc2626; --neg-soft:#fdecec; --warn:#b45309; --warn-soft:#fef5e6;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1115; --card:#171a21; --side:#13161c; --text:#e8eaef; --muted:#9aa3b2; --faint:#6b7383; --line:#262b35;
+    --accent:#8b8cff; --accent-soft:#22244a; --pos:#34d399; --pos-soft:#11291f; --neg:#f87171; --neg-soft:#331a1a;
+    --warn:#fbbf24; --warn-soft:#33270f; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1115; --card:#171a21; --side:#13161c; --text:#e8eaef; --muted:#9aa3b2; --faint:#6b7383; --line:#262b35;
+  --accent:#8b8cff; --accent-soft:#22244a; --pos:#34d399; --pos-soft:#11291f; --neg:#f87171; --neg-soft:#331a1a;
+  --warn:#fbbf24; --warn-soft:#33270f; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.55 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+.hide{display:none !important}
+
+/* ----- Khung ----- */
+.app{display:flex;min-height:100vh}
+aside{width:228px;flex:none;background:var(--side);border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-weight:700;font-size:15px}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:14px}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;color:var(--muted);cursor:pointer;border:0;background:none;font:inherit;text-align:left;width:100%}
+.nav svg{width:18px;height:18px;flex:none}
+.nav:hover{background:var(--bg);color:var(--text)}
+.nav.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav .cnt{margin-left:auto;font-size:11.5px;background:var(--warn-soft);color:var(--warn);border-radius:99px;padding:0 7px;font-weight:600}
+.side-foot{margin-top:auto;padding:10px;font-size:12px;color:var(--faint)}
+.sig{margin-top:6px;font-size:11px;opacity:.75;cursor:default;user-select:none}
+.about{text-align:center;padding:16px 8px}
+.about .logo-xl{width:64px;height:64px;border-radius:18px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:30px;margin:0 auto 14px}
+.about table{margin:18px auto 0;max-width:420px} .about td{text-align:left}
+.content{flex:1;min-width:0}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
+.topbar h1{font-size:19px;margin:0;font-weight:700}
+.topbar .sub{color:var(--muted);font-size:13px}
+.spacer{flex:1}
+.month{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.month button{border:0;background:none;color:var(--muted);font:inherit;font-size:18px;width:34px;height:36px;cursor:pointer}
+.month button:disabled{opacity:.3;cursor:default}
+.month span{padding:0 6px;font-weight:600;min-width:118px;text-align:center}
+.page{padding:24px 28px 48px;max-width:1240px}
+
+/* ----- Thành phần ----- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 4px;font-weight:600}
+.card .desc{color:var(--muted);font-size:13px;margin:0 0 14px}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:1fr 1fr}
+.g-main{grid-template-columns:1.35fr 1fr}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)} .g-main{grid-template-columns:1fr}}
+@media (max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+.hero{padding:20px}
+.hero .l{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:6px}
+.hero .v{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.hero .s{font-size:12.5px;color:var(--muted)}
+.mini .v{font-size:22px}
+.pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)} .muted{color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:500;white-space:nowrap;background:var(--bg);color:var(--muted)}
+.t-ok{background:var(--pos-soft);color:var(--pos)} .t-bad{background:var(--neg-soft);color:var(--neg)}
+.t-warn{background:var(--warn-soft);color:var(--warn)} .t-info{background:var(--accent-soft);color:var(--accent)}
+.btn{font:inherit;font-weight:500;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+.btn.danger{color:var(--neg)}
+input,select{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+input:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+input.money{width:130px;text-align:right;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.callout{border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:16px;background:var(--accent-soft)}
+.callout.ok{background:var(--pos-soft);color:var(--pos)} .callout.bad{background:var(--neg-soft);color:var(--neg)} .callout.warn{background:var(--warn-soft);color:var(--warn)}
+
+/* bảng */
+.tbl{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:10px 8px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--line)}
+th{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--bg)}
+tr.total td{font-weight:700;border-top:1px solid var(--text)}
+tr.sub td:first-child{padding-left:24px;color:var(--muted);font-size:13px}
+tr.sub td{padding-top:6px;padding-bottom:6px;font-size:13px}
+.idc{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--muted)}
+.pname{min-width:240px;max-width:460px;white-space:normal;overflow-wrap:anywhere;line-height:1.45}
+
+/* dashboard */
+:root{--c-fee:#f59e0b;--c-cogs:#64748b;--c-ext:#a855f7;--c-profit:#10b981}
+.stack{display:flex;height:34px;border-radius:9px;overflow:hidden;background:var(--bg);margin:6px 0 16px}
+.stack i{display:block;height:100%;border-right:2px solid var(--card)}
+.stack i:last-child{border-right:0}
+.legend{display:grid;gap:2px}
+.lg{display:grid;grid-template-columns:14px 1fr auto 64px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.lg:last-child{border-bottom:0}
+.lg b{font-variant-numeric:tabular-nums;font-weight:600}
+.lg span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.dot{width:12px;height:12px;border-radius:4px}
+.delta{font-weight:600;font-size:12px;margin-right:4px;color:var(--muted)}
+.delta.up{color:var(--pos)} .delta.down{color:var(--neg)}
+.att{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:11px 12px;border-radius:10px;margin-bottom:8px;border-left:4px solid var(--line);background:var(--bg)}
+.att.bad{border-left-color:var(--neg)} .att.warn{border-left-color:var(--warn)} .att.info{border-left-color:var(--accent)}
+.att .t{font-weight:600;font-size:13.5px} .att .d{color:var(--muted);font-size:12.5px}
+.att .btn{flex:none}
+.acc{position:relative}
+.acc summary{cursor:pointer;font-size:13px;color:var(--accent);list-style:none;font-weight:500}
+.acc summary::-webkit-details-marker{display:none}
+.acc[open] .acc-body{position:absolute;right:0;top:28px;z-index:8;width:min(460px,90vw);background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);padding:6px 16px}
+.hero .v{white-space:nowrap}
+
+/* thác nước */
+.wf{display:grid;grid-template-columns:minmax(150px,1.1fr) 2fr auto;gap:10px 14px;align-items:center}
+.wf .lb{font-size:13.5px}
+.wf .lb.b{font-weight:700}
+.wf .track{height:22px;position:relative;background:var(--bg);border-radius:6px;overflow:hidden}
+.wf .bar{position:absolute;top:0;bottom:0;border-radius:6px}
+.wf .val{text-align:right;font-variant-numeric:tabular-nums;font-weight:500;min-width:110px}
+.wf .val.b{font-weight:700}
+.wf .sep{grid-column:1/-1;height:1px;background:var(--line);margin:2px 0}
+
+/* checklist */
+.chk{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.chk:last-child{border-bottom:0}
+.chk .ic{width:24px;height:24px;border-radius:99px;display:grid;place-items:center;flex:none;font-size:13px;font-weight:700}
+.chk .ic.ok{background:var(--pos-soft);color:var(--pos)} .chk .ic.bad{background:var(--neg-soft);color:var(--neg)}
+.chk .ic.warn{background:var(--warn-soft);color:var(--warn)} .chk .ic.na{background:var(--bg);color:var(--faint)}
+.chk .t{font-weight:600;font-size:13.5px} .chk .d{color:var(--muted);font-size:12.5px}
+.chk .act{margin-left:auto;flex:none}
+
+/* chip lọc */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:5px 12px;cursor:pointer;font:inherit;font-size:13px}
+.chip b{font-weight:600;margin-left:5px;color:var(--faint)}
+.chip.on{background:var(--text);border-color:var(--text);color:var(--card)} .chip.on b{color:var(--card);opacity:.7}
+.pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px}
+
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(15,17,21,.35);z-index:30;display:flex;justify-content:flex-end}
+.drawer{width:min(620px,100%);height:100%;background:var(--card);overflow:auto;padding:24px;box-shadow:-8px 0 30px rgba(0,0,0,.15)}
+.drawer h3{font-size:14px;margin:22px 0 8px}
+.explain{background:var(--bg);border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:4px 12px;font-size:13px}
+.kv div:nth-child(odd){color:var(--muted)}
+
+.drop{border:2px dashed var(--line);border-radius:14px;padding:34px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.drop:hover,.drop.hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.drop b{color:var(--text)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;position:relative;padding:0 0 14px 38px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:99px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+details summary{cursor:pointer;font-weight:600}
+.prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--accent)}
+.faq{border-bottom:1px solid var(--line);padding:12px 0}
+.faq:last-child{border-bottom:0}
+.faq summary{font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';color:var(--muted);font-size:18px;line-height:1}
+.faq[open] summary::after{content:'−'}
+.faq .d{color:var(--muted);font-size:13.5px;margin-top:8px;line-height:1.6}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty h2{color:var(--text)}
+
+/* điện thoại */
+@media (max-width:900px){
+  .app{flex-direction:column}
+  aside{width:100%;height:auto;position:sticky;top:0;z-index:10;flex-direction:row;overflow-x:auto;padding:8px;gap:2px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand,.side-foot{display:none}
+  .nav{width:auto;white-space:nowrap;padding:8px 10px}
+  .nav svg{display:none}
+  .topbar{position:static;padding:14px 16px}
+  .page{padding:16px}
+  .hero .v{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="logo">₫</div>Đối soát TikTok Shop</div>
+    <button class="nav on" data-t="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Tổng quan</button>
+    <button class="nav" data-t="pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Lãi lỗ tháng</button>
+    <button class="nav" data-t="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Đơn hàng</button>
+    <button class="nav" data-t="returns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Hoàn &amp; bồi hoàn</button>
+    <button class="nav" data-t="cogs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>Giá vốn<span class="cnt hide" id="cogsCnt"></span></button>
+    <button class="nav" data-t="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>Tải dữ liệu</button>
+    <button class="nav" data-t="guide" style="margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h.01"/></svg>Hướng dẫn</button>
+    <div class="side-foot">Dữ liệu chỉ lưu trên trình duyệt này.<div class="sig" id="sig" title="Thông tin ứng dụng">© 2026 · Thịnh Nguyễn · v1.0</div></div>
+  </aside>
+  <div class="content">
+    <div class="topbar">
+      <div><h1 id="title">Tổng quan</h1><div class="sub" id="subtitle"></div></div>
+      <div class="spacer"></div>
+      <div class="month" id="monthBox"><button id="mPrev" title="Tháng trước">‹</button><span id="mLabel">—</span><button id="mNext" title="Tháng sau">›</button></div>
+    </div>
+    <div class="page" id="page"></div>
+  </div>
+</div>
+<div id="overlay" class="overlay hide"><div class="drawer" id="drawer"></div></div>
+
+<script>
+/* ===================== Thông tin tác giả ===================== */
+const APP = Object.freeze({
+  name: 'Đối soát TikTok Shop', version: '1.0',
+  author: 'Thịnh Nguyễn', id: 'TN-88025F2F-6D2D8BAA', created: '17/11/2026',
+  copyright: '© 2026 Thịnh Nguyễn. Bảo lưu mọi quyền.',
+});
+const XLSX_PROPS = { Title: APP.name, Author: APP.author, Company: APP.author, Comments: `${APP.name} · ${APP.id}` };
+function showAbout(){
+  $('#drawer').innerHTML=`<div class="row" style="justify-content:flex-end"><button class="btn sm" id="dclose">Đóng ✕</button></div>
+    <div class="about"><div class="logo-xl">₫</div><h2 style="margin:0;font-size:20px">${APP.name}</h2><div class="muted">Phiên bản ${APP.version}</div>
+      <table><tr><td class="muted">Tác giả</td><td><b>${APP.author}</b></td></tr>
+        <tr><td class="muted">Mã định danh</td><td class="idc">${APP.id}</td></tr>
+        <tr><td class="muted">Ngày tạo</td><td>${APP.created}</td></tr>
+        <tr><td class="muted">Bản quyền</td><td>${APP.copyright}</td></tr></table></div>`;
+  $('#overlay').classList.remove('hide'); $('#dclose').onclick=closeDrawer;
+}
+console.log(`%c${APP.name} v${APP.version}%c\nTác giả: ${APP.author} · ${APP.id}\n${APP.copyright}`,'font-weight:bold;font-size:14px;color:#4f46e5','color:inherit');
+
+/* ===================== Cấu hình ===================== */
+const FEE_GROUPS = [
+  ['Phí giao dịch + hoa hồng sàn', ['Phí giao dịch','Phí hoa hồng của TikTok Shop']],
+  ['Phí vận chuyển (ròng)', ['Phí vận chuyển của người bán']],
+  ['Hoa hồng affiliate / KOC', ['Hoa hồng liên kết','Hoa hồng liên kết Quảng cáo cửa hàng','Hoa hồng của đối tác liên kết','Tiền cọc hoa hồng liên kết','Hoàn hoa hồng liên kết','Hoa hồng quảng cáo cửa hàng của Đối tác liên kết']],
+  ['Phí dịch vụ (Xtra, SFR, xử lý đơn…)', ['Phí dịch vụ SFP','Phí dịch vụ hoàn tiền thưởng','Phí dịch vụ Ưu đãi đặc biệt trên LIVE','Phí dịch vụ Voucher Xtra','Phí xử lý đơn hàng','Phí dịch vụ Chương trình EAMS','Phí dịch vụ Flash Sale','Phí chương trình TikTok PayLater','Phí nguồn lực chiến dịch','Phí dịch vụ SFR','Gói dịch vụ được quản lý (phí mỗi đơn hàng)']],
+  ['Thuế sàn khấu trừ (GTGT + TNCN)', ['Thuế GTGT do TikTok Shop khấu trừ','Thuế TNCN do TikTok Shop khấu trừ','Thuế bán hàng của voucher GMV Max','Gói dịch vụ được quản lý (thuế bán hàng)']],
+  ['Quảng cáo GMV Max (trừ qua sàn)', ['Voucher GMV Max','Phí quảng cáo GMV Max']],
+];
+const FEE_LABELS = FEE_GROUPS.map(g=>g[0]).concat(['Phí khác']);
+const COST_CATS = [
+  ['ads','Quảng cáo TikTok Ads (nạp ngoài sàn)'],
+  ['ship','Ship / hàng hoàn sàn không bù'],
+  ['sample','Hàng mẫu, quà tặng KOC'],
+  ['staff','Lương nhân viên'],
+  ['rent','Mặt bằng, kho, điện nước'],
+  ['other','Chi phí khác'],
+];
+const CAT = {
+  settled:   ['Đã quyết toán','t-ok'],
+  returned:  ['Trả hàng / hoàn tiền','t-bad'],
+  failed:    ['Giao thất bại','t-bad'],
+  waitSettle:['Chờ quyết toán','t-info'],
+  shipping:  ['Đang giao','t-warn'],
+  cancelled: ['Hủy trước giao',''],
+  onlySettle:['Thiếu file đơn','t-warn'],
+  other:     ['Khác',''],
+};
+
+/* ===================== Lưu trữ (IndexedDB) ===================== */
+const DB = {
+  db:null,
+  async open(){ if(this.db) return this.db;
+    this.db = await new Promise((res,rej)=>{ const r=indexedDB.open('doisoat-tts',1);
+      r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});
+    return this.db; },
+  async get(k){ try{ const db=await this.open(); return await new Promise((res,rej)=>{const r=db.transaction('kv').objectStore('kv').get(k); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);}); }catch(e){ return undefined; } },
+  async set(k,v){ try{ const db=await this.open(); await new Promise((res,rej)=>{const t=db.transaction('kv','readwrite'); t.objectStore('kv').put(v,k); t.oncomplete=res; t.onerror=()=>rej(t.error);}); }catch(e){ console.warn('Không lưu được',e); } },
+};
+const blankState = () => ({ income:{}, orders:{}, cogs:{}, cogsEst:{}, settings:{pack:0, returnToStock:true}, monthCosts:{}, locks:{} });
+let S = blankState();
+async function load(){ const v=await DB.get('state'); if(v) S=Object.assign(blankState(),v); }
+async function save(){ await DB.set('state', S); }
+
+/* ===================== Tiện ích ===================== */
+const nf = new Intl.NumberFormat('vi-VN');
+const fm = v => v==null||isNaN(v) ? '—' : nf.format(Math.round(v)||0);
+const fmc = v => `<span class="${v<0?'neg':v>0?'pos':''}">${fm(v)}</span>`;
+const fs = v => { if(v==null||isNaN(v)) return '—'; const a=Math.abs(v), sg=v<0?'−':'';
+  if(a>=1e9) return sg+(a/1e9).toFixed(2).replace('.',',')+' tỷ';
+  if(a>=1e6) return sg+(a/1e6).toFixed(1).replace('.',',')+' tr';
+  return sg+nf.format(Math.round(a)); };
+const pct = v => v==null||!isFinite(v) ? '—' : (v*100).toFixed(1).replace('.',',')+'%';
+const num = v => { if(v==null||v==='') return 0; const n=Number(String(v).replace(/[,\s]/g,'').replace(/\.(?=\d{3}(\D|$))/g,'')); return isNaN(n)?0:n; };
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const monthLabel = m => m ? `Tháng ${+m.slice(5,7)}/${m.slice(0,4)}` : '';
+const mShort = m => m ? `T${+m.slice(5,7)}/${m.slice(2,4)}` : '';
+const prevMonth = m => { let y=+m.slice(0,4), mm=+m.slice(5,7)-1; if(!mm){mm=12;y--;} return `${y}-${String(mm).padStart(2,'0')}`; };
+const lastDay = m => new Date(+m.slice(0,4), +m.slice(5,7), 0).getDate();
+function isoFromSlash(s){ s=String(s||'').trim(); const m=s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/); return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:''; }
+function isoFromVN(s){ s=String(s||'').trim(); if(!s) return ''; const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if(!m) return isoFromSlash(s); return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T${(m[4]||'0').padStart(2,'0')}:${m[5]||'00'}:${m[6]||'00'}`; }
+const fdate = s => s ? `${s.slice(8,10)}/${s.slice(5,7)}/${s.slice(0,4)}` : '';
+const fdd = s => s ? `${s.slice(8,10)}/${s.slice(5,7)}` : '';
+
+/* ===================== Đọc file Excel ===================== */
+function sheetRows(ws){
+  // Một số file TikTok ghi sai kích thước bảng (!ref) -> tự tính lại
+  let maxR=0,maxC=0;
+  for(const k in ws){ if(k[0]==='!') continue; const a=XLSX.utils.decode_cell(k); if(a.r>maxR)maxR=a.r; if(a.c>maxC)maxC=a.c; }
+  ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:maxR,c:maxC}});
+  return XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+}
+function toObjects(rows){ const h=rows[0].map(x=>String(x).trim()); return rows.slice(1).map(r=>{const o={}; h.forEach((k,i)=>{ if(k) o[k]=r[i]; }); return o;}); }
+
+function parseWorkbook(name, buf){
+  const wb = XLSX.read(buf,{type:'array'});
+  if(wb.SheetNames.includes('Chi tiết đơn hàng')) return {kind:'income', ...parseIncome(name,wb)};
+  for(const sn of wb.SheetNames){
+    const rows=sheetRows(wb.Sheets[sn]);
+    if(rows.length && String(rows[0][0]).trim()==='Order ID') return {kind:'orders', ...parseOrders(name,rows)};
+  }
+  throw new Error('Không nhận ra loại file. Cần file "Tất cả đơn hàng" hoặc file "income" (quyết toán) xuất từ Seller Center.');
+}
+
+function parseIncome(name, wb){
+  const rows = toObjects(sheetRows(wb.Sheets['Chi tiết đơn hàng']));
+  let period='';
+  if(wb.Sheets['Báo cáo']){
+    for(const r of sheetRows(wb.Sheets['Báo cáo'])){ if(r.some(c=>String(c).trim()==='Khoảng thời gian')){ period=r.filter(c=>String(c).trim()).pop(); break; } }
+  }
+  const lines=[]; let minD='',maxD='';
+  for(const r of rows){
+    const id=String(r['ID đơn hàng/điều chỉnh']||'').trim(); if(!/^\d+$/.test(id)) continue;
+    const type=String(r['Loại giao dịch']||'').trim();
+    const isOrder = type==='Đơn hàng';
+    const fee=num(r['Tổng phí']);
+    const f=FEE_GROUPS.map(([,cols])=>cols.reduce((s,c)=>s+num(r[c]),0));
+    f.push(fee - f.reduce((a,b)=>a+b,0));
+    const d=isoFromSlash(r['Thời gian quyết toán đơn hàng']);
+    if(!minD||d<minD)minD=d; if(d>maxD)maxD=d;
+    lines.push({
+      oid: isOrder ? id : (String(r['ID đơn hàng liên quan']||'').trim() || id),
+      ref: id, type, adjust: !isOrder,
+      c: isoFromSlash(r['Thời gian tạo đơn hàng']), d,
+      amt: num(r['Tổng số tiền quyết toán']),
+      S: num(r['Tổng phụ sau giảm giá của người bán']),
+      R: num(r['Tổng phụ của khoản hoàn tiền sau giảm giá của người bán']),
+      fee, adj: num(r['Số tiền điều chỉnh']), f,
+    });
+  }
+  const earnings={}, withdrawals={};
+  if(wb.Sheets['Lịch sử rút tiền']){
+    for(const r of toObjects(sheetRows(wb.Sheets['Lịch sử rút tiền']))){
+      const t=String(r['Loại giao dịch']).trim();
+      const d=isoFromSlash(r['Thời gian thành công']||r['Thời gian yêu cầu']); if(!d) continue;
+      if(t==='Earnings') earnings[d]=(earnings[d]||0)+num(r['Số tiền']);
+      else if(t==='Withdrawal') withdrawals[d]=(withdrawals[d]||0)-num(r['Số tiền']);
+    }
+  }
+  if(!period) period=`${minD}..${maxD}`;
+  return {period, lines, earnings, withdrawals};
+}
+
+function parseOrders(name, rows){
+  const objs=toObjects(rows); const orders={};
+  for(const r of objs){
+    const id=String(r['Order ID']||'').trim(); if(!/^\d+$/.test(id)) continue;
+    let o=orders[id];
+    if(!o){ o=orders[id]={ id,
+      status:String(r['Order Status']||'').trim(), sub:String(r['Order Substatus']||'').trim(),
+      crType:String(r['Cancelation/Return Type']||'').trim(),
+      created:isoFromVN(r['Created Time']), shipped:isoFromVN(r['Shipped Time']),
+      delivered:isoFromVN(r['Delivered Time']), cancelled:isoFromVN(r['Cancelled Time']),
+      cancelReason:String(r['Cancel Reason']||'').trim(), cancelBy:String(r['Cancel By']||'').trim(),
+      amount:num(r['Order Amount']), refund:num(r['Order Refund Amount']),
+      channel:String(r['Order Channel']||'').trim(), creator:String(r['Creator Handle']||'').trim(),
+      payment:String(r['Payment Method']||'').trim(), carrier:String(r['Shipping Provider Name']||'').trim(),
+      province:String(r['Province']||'').trim(),
+      skus:[] }; }
+    o.skus.push({ sku:String(r['SKU ID']||'').trim(), seller:String(r['Seller SKU']||'').trim(),
+      name:String(r['Product Name']||'').trim(), varn:String(r['Variation']||'').trim(),
+      qty:num(r['Quantity']), ret:num(r['Sku Quantity of return']),
+      g: num(r['SKU Subtotal Before Discount']) - num(r['SKU Seller Discount']) });
+  }
+  return {orders};
+}
+
+/* ===================== Tính toán ===================== */
+let M = null;
+function compute(){
+  const lines=[]; const earn={}, wd={};
+  for(const p in S.income){ const inc=S.income[p]; lines.push(...inc.lines);
+    for(const d in inc.earnings||{}) earn[d]=(earn[d]||0)+inc.earnings[d];
+    for(const d in inc.withdrawals||{}) wd[d]=(wd[d]||0)+inc.withdrawals[d]; }
+  lines.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+  const byOrder={};
+  for(const l of lines){ (byOrder[l.oid] ||= []).push(l); }
+  const pack=num(S.settings.pack);
+  const ids=new Set([...Object.keys(S.orders),...Object.keys(byOrder)]);
+  const orders=[];
+  for(const id of ids){
+    const o=S.orders[id]||null; const ls=byOrder[id]||[];
+    let G=0, C=0, costMissing=false;
+    if(o){ for(const s of o.skus){ G+=s.g; const c=S.cogs[s.sku]; if(c==null||c==='') costMissing=true; else C+=num(c)*s.qty; } }
+    let packed=false;
+    for(const l of ls){
+      // giá vốn gắn theo từng dòng quyết toán: bán ra (+S) và hoàn về (R<0)
+      if(!o || l.adjust || G===0){ l.cogs = 0; l.cogsUnknown = !o && !l.adjust && (l.S!==0||l.R!==0); l.noOrder = !o && !l.adjust && (l.S!==0||l.R!==0); }
+      else {
+        // Hủy trước giao / giao thất bại: hàng chưa đến tay khách -> luôn quay về kho nguyên kiện.
+        // Chỉ hàng khách đã nhận rồi trả lại mới theo tùy chọn "nhập lại kho".
+        const customerReturn = o.status!=='Đã hủy';
+        const restock = !customerReturn || S.settings.returnToStock;
+        const ratio=(l.S + (restock?l.R:0))/G;
+        l.cogs = costMissing ? 0 : C*ratio; l.cogsUnknown = costMissing && (l.S!==0||l.R!==0); l.noOrder=false;
+      }
+      // phí đóng gói: chỉ tính khi hàng thực sự được gửi đi
+      const wasShipped = o ? !!o.shipped : (l.S + l.R > 0);
+      l.pack = (!packed && wasShipped && l.S>0 && !l.adjust) ? pack : 0; if(l.pack) packed=true;
+      l.profit = l.amt - l.cogs - l.pack;
+    }
+    const sum=k=>ls.reduce((s,l)=>s+(l[k]||0),0);
+    const net={ amt:sum('amt'), S:sum('S'), R:sum('R'), cogs:sum('cogs'), pack:sum('pack'), profit:sum('profit'), fee:sum('fee'), adj:sum('adj') };
+    net.comp = ls.filter(l=>l.adjust).reduce((s,l)=>s+l.amt,0);
+    let cat='other';
+    if(!o) cat = ls.length?'onlySettle':'other';
+    else if(o.status==='Đã hủy'){ cat = (o.shipped || /thất bại|thất lạc/i.test(o.cancelReason)) ? 'failed' : 'cancelled'; }
+    else if(o.crType==='Return/Refund' || net.R<0) cat='returned';
+    else if(o.status==='Đã hoàn tất') cat = ls.length? 'settled' : 'waitSettle';
+    else cat='shipping';
+    orders.push({ id, o, ls, G, C, costMissing, net, cat, hasComp: ls.some(l=>l.adjust),
+      created: o? o.created.slice(0,10) : (ls[0]?.c||''),
+      lastSettle: ls.length? ls[ls.length-1].d : '',
+      margin: (net.S+net.R)>0 ? net.profit/(net.S+net.R) : null });
+  }
+  const st=orders.filter(x=>x.cat==='settled'); const sS=st.reduce((s,x)=>s+x.net.S,0);
+  M={ lines, earn, wd, orders, byId:Object.fromEntries(orders.map(x=>[x.id,x])),
+      months:[...new Set(lines.map(l=>l.d.slice(0,7)))].filter(Boolean).sort(),
+      keep: sS? st.reduce((s,x)=>s+x.net.amt,0)/sS : 0.7 };
+}
+
+function explain(x){
+  const o=x.o, n=x.net; const parts=[];
+  const comp = x.ls.filter(l=>l.adjust);
+  switch(x.cat){
+    case 'cancelled': parts.push(`Hủy trước khi gửi hàng${o.cancelReason?` (${o.cancelReason}${o.cancelBy?', bởi '+o.cancelBy:''})`:''}. Không thu tiền, không tốn chi phí, không ảnh hưởng lãi/lỗ.`); break;
+    case 'failed': parts.push(`Giao thất bại${o.cancelReason?` (${o.cancelReason})`:''}, hàng hoàn về kho.`);
+      parts.push(x.ls.length? `Mất ${fm(-n.amt+n.comp)}đ phí ship/phí sàn${n.pack?` + ${fm(n.pack)}đ đóng gói`:''}.` : 'Chưa quyết toán phí ship hoàn.'); break;
+    case 'returned': parts.push(n.R<0? `Khách trả hàng/hoàn tiền ${fm(-n.R)}đ.` : 'Có yêu cầu trả hàng/hoàn tiền, chưa quyết toán khoản hoàn.');
+      if(x.ls.length) parts.push(`Thực nhận còn ${fm(n.amt)}đ.`); break;
+    case 'settled': parts.push(`Giao thành công, quyết toán ngày ${fdate(x.lastSettle)}. Thực nhận ${fm(n.amt)}đ sau khi sàn trừ ${fm(-n.fee)}đ phí.`); break;
+    case 'waitSettle': parts.push(`Đã hoàn tất${o.delivered?', giao ngày '+fdate(o.delivered):''}. Đang chờ TikTok quyết toán tiền.`); break;
+    case 'shipping': parts.push(o.delivered? `Đã giao ngày ${fdate(o.delivered)}, đang trong thời hạn khách được trả hàng.` : `Đang vận chuyển${o.shipped?' từ ngày '+fdate(o.shipped):''}.`); break;
+    case 'onlySettle': parts.push(`Đơn đặt ngày ${fdate(x.created)}. Chưa tải file đơn hàng của tháng đó nên chưa biết sản phẩm và giá vốn.`); break;
+  }
+  if(comp.length) parts.push(`Sàn đã bồi hoàn ${fm(n.comp)}đ (ngày ${comp.map(l=>fdate(l.d)).join(', ')}).`);
+  return parts.join(' ');
+}
+
+function costsFor(m){ const mc=S.monthCosts[m]||{}; const items=COST_CATS.map(([k,lb])=>({k,lb,v:num(mc[k])})); return {items, total:items.reduce((s,i)=>s+i.v,0), confirmed:!!mc.confirmed}; }
+
+function plFor(m){
+  const ls=M.lines.filter(l=>l.d.slice(0,7)===m);
+  const t={ n:ls.length, S:0,R:0,fee:0,adj:0,amt:0,cogs:0,pack:0,profit:0,f:FEE_LABELS.map(()=>0),
+            cogsUnknown:0, cogsUnknownAmt:0, noOrder:0, noOrderMonths:new Set(), byCreated:{}, orders:new Set(), skus:new Set() };
+  for(const l of ls){
+    t.S+=l.S; t.R+=l.R; t.fee+=l.fee; t.adj+=l.adj; t.amt+=l.amt; t.cogs+=l.cogs; t.pack+=l.pack; t.profit+=l.profit;
+    l.f.forEach((v,i)=>t.f[i]+=v);
+    if(l.cogsUnknown){ t.cogsUnknown++; t.cogsUnknownAmt+=l.S+l.R; }
+    if(l.noOrder){ t.noOrder++; t.noOrderMonths.add((l.c||'').slice(0,7)); }
+    const cm=(l.c||'').slice(0,7)||'?'; const b=(t.byCreated[cm] ||= {n:0,amt:0}); b.n++; b.amt+=l.amt;
+    t.orders.add(l.oid);
+    const x=M.byId[l.oid]; if(x&&x.o&&!l.adjust) x.o.skus.forEach(s=>t.skus.add(s.sku));
+  }
+  const c=costsFor(m); t.ext=c.total; t.costs=c;
+  t.final=t.profit - t.ext; t.rev=t.S+t.R;
+  t.earn=Object.entries(M.earn).filter(([d])=>d.slice(0,7)===m).reduce((s,[,v])=>s+v,0);
+  t.hasEarn=Object.keys(M.earn).some(d=>d.slice(0,7)===m);
+  t.wd=Object.entries(M.wd).filter(([d])=>d.slice(0,7)===m).reduce((s,[,v])=>s+v,0);
+  const sk=[...t.skus]; t.skuMissing=sk.filter(k=>S.cogs[k]==null||S.cogs[k]==='').length; t.skuEst=sk.filter(k=>S.cogsEst[k]).length; t.skuTotal=sk.length;
+  t.noCogs = t.skuTotal>0 && t.skuMissing===t.skuTotal; // chưa nhập giá vốn nào -> chưa thể tính lợi nhuận
+  return t;
+}
+
+function pendingAt(m){
+  const res={ shipping:[], delivered:[], total:0 };
+  for(const x of M.orders){
+    const o=x.o; if(!o||!o.created) continue;
+    if(o.created.slice(0,7)>m) continue;
+    if(o.cancelled && o.cancelled.slice(0,7)<=m && !o.shipped) continue;
+    if(x.ls.some(l=>l.d.slice(0,7)<=m)) continue;
+    if(o.cancelled && o.cancelled.slice(0,7)<=m && x.ls.length===0) continue;
+    const delivered = o.delivered && o.delivered.slice(0,7)<=m;
+    (delivered?res.delivered:res.shipping).push(x); res.total+=x.G;
+  }
+  // tiền dự kiến về: dùng số thật nếu đã có quyết toán sau tháng m, còn lại ước tính theo tỷ lệ thực nhận
+  let exp=0, known=0;
+  for(const x of [...res.delivered,...res.shipping]){
+    const after=x.ls.filter(l=>l.d.slice(0,7)>m);
+    if(after.length){ exp+=after.reduce((s,l)=>s+l.amt,0); known++; }
+    else if(x.cat==='cancelled'||x.cat==='failed'||x.cat==='returned') {}
+    else exp+=x.G*M.keep;
+  }
+  res.exp=exp; res.known=known; res.n=res.shipping.length+res.delivered.length;
+  return res;
+}
+
+// Mức độ đầy đủ của báo cáo tháng m
+function checksFor(m, t){
+  const c=[];
+  if(t.hasEarn){ const d=t.amt-t.earn; c.push(Math.abs(d)<1
+    ? {s:'ok', t:'Tiền quyết toán khớp với tiền về ví', d:`${fm(t.amt)}đ = tổng tiền TikTok chuyển vào ví trong tháng.`}
+    : {s:'bad', t:`Lệch ${fm(d)}đ so với tiền về ví`, d:'File income có thể chưa đủ cả tháng. Hãy xuất lại từ ngày 01 đến ngày cuối tháng.', a:['data','Tải lại']}); }
+  else c.push({s:'warn', t:'Chưa kiểm tra được tiền về ví', d:'File income không có sheet "Lịch sử rút tiền".'});
+  const nm=[...t.noOrderMonths].filter(Boolean).sort();
+  c.push(t.noOrder ? {s:'bad', t:`Thiếu file đơn hàng ${nm.map(mShort).join(', ')}`, d:`${t.noOrder} dòng quyết toán thuộc đơn đặt từ tháng trước, nên chưa tính được giá vốn.`, a:['data','Tải file đơn']}
+                   : {s:'ok', t:'Đủ file đơn hàng', d:'Mọi dòng quyết toán đều tìm thấy đơn hàng gốc.'});
+  c.push(t.skuMissing ? {s:'bad', t:`Còn ${t.skuMissing}/${t.skuTotal} sản phẩm chưa có giá vốn`, d:'Lợi nhuận của các đơn này đang bị bỏ trống.', a:['cogs','Nhập giá vốn']}
+       : t.skuEst ? {s:'warn', t:`${t.skuEst} sản phẩm đang dùng giá vốn tạm tính`, d:'Thay bằng giá nhập thật để số liệu chính xác.', a:['cogs','Sửa giá vốn']}
+       : {s:'ok', t:'Đủ giá vốn', d:`${t.skuTotal} sản phẩm có phát sinh trong tháng đều đã có giá vốn.`});
+  c.push(t.costs.confirmed || t.ext>0 ? {s:'ok', t:'Đã nhập chi phí ngoài sàn', d:`Tổng ${fm(t.ext)}đ (quảng cáo, lương, ship hoàn…).`, a:['pl','Xem']}
+       : {s:'warn', t:'Chưa nhập chi phí ngoài sàn', d:'Quảng cáo nạp ngoài sàn, lương, mặt bằng… Nếu không có, hãy đánh dấu "Không có".', a:['pl','Nhập chi phí']});
+  const lock=S.locks[m];
+  c.push(lock ? {s:'ok', t:`Đã chốt sổ ngày ${fdate(lock.at)}`, d: Math.abs(lock.profit-t.final)>=1 ? `⚠ Số hiện tại khác lúc chốt (${fm(lock.profit)}đ).` : 'Số liệu không đổi kể từ lúc chốt.'}
+       : {s:'na', t:'Chưa chốt sổ', d:'Chốt sổ khi 4 mục trên đã xanh để khóa số liệu báo cáo.', a:['pl','Chốt sổ']});
+  const core=c.slice(0,4); const ready=core.every(x=>x.s==='ok');
+  return {list:c, ready, missing:core.filter(x=>x.s!=='ok').length};
+}
+
+/* ===================== Giao diện ===================== */
+const $ = s=>document.querySelector(s);
+const $$ = s=>[...document.querySelectorAll(s)];
+let tab='home', month='';
+const TITLES={home:['Tổng quan','Tháng này lời bao nhiêu, đã chính xác chưa'],pl:['Lãi lỗ tháng','Báo cáo theo ngày TikTok quyết toán tiền'],
+  orders:['Đơn hàng','Tình trạng và lãi/lỗ của từng đơn'],returns:['Hoàn & bồi hoàn','Hủy, giao thất bại, trả hàng và tiền sàn bồi hoàn'],
+  cogs:['Giá vốn','Giá nhập từng sản phẩm, dùng để tính lợi nhuận'],data:['Tải dữ liệu','File cần tải cho mỗi kỳ báo cáo'],
+  guide:['Hướng dẫn sử dụng','Cách dùng ứng dụng và ý nghĩa các con số']};
+
+function go(t){ tab=t; $$('.nav').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); render(); window.scrollTo(0,0); }
+function setMonth(m){ month=m; render(); }
+function renderChrome(){
+  $('#title').textContent=TITLES[tab][0]; $('#subtitle').textContent=TITLES[tab][1];
+  const ms=M.months; const i=ms.indexOf(month);
+  $('#monthBox').classList.toggle('hide', !ms.length || tab==='cogs' || tab==='guide');
+  $('#mLabel').textContent=monthLabel(month);
+  $('#mPrev').disabled=i<=0; $('#mNext').disabled=i<0||i>=ms.length-1;
+  const ps=productList(); const miss=ps.filter(p=>S.cogs[p.sku]==null||S.cogs[p.sku]==='').length;
+  const cc=$('#cogsCnt'); cc.classList.toggle('hide',!miss); cc.textContent=miss;
+}
+function render(){
+  renderChrome();
+  if(!M.lines.length && !Object.keys(S.orders).length && tab!=='data' && tab!=='guide'){
+    $('#page').innerHTML=`<div class="card empty"><h2>Chưa có dữ liệu</h2><p>Tải file <b>income</b> (quyết toán) và file <b>Tất cả đơn hàng</b> xuất từ TikTok Seller Center để bắt đầu.</p><div class="row" style="justify-content:center"><button class="btn primary" onclick="go('data')">Tải dữ liệu</button><button class="btn" onclick="go('guide')">Xem hướng dẫn</button></div></div>`; return; }
+  ({home:renderHome, pl:renderPL, orders:renderOrders, returns:renderReturns, cogs:renderCogs, data:renderData, guide:renderGuide})[tab]();
+}
+
+/* ---------- Tổng quan ---------- */
+// Số liệu bổ sung cho dashboard: theo kênh, theo sản phẩm, số đơn thành công
+function dashFor(m){
+  const ls=M.lines.filter(l=>l.d.slice(0,7)===m);
+  const ch={}, sku={}, okOrders=new Set();
+  for(const l of ls){
+    const x=M.byId[l.oid]; const o=x&&x.o;
+    const c=o? (o.channel||'Khác') : 'Chưa rõ (thiếu file đơn)';
+    const a=(ch[c] ||= {orders:new Set(),rev:0,amt:0,profit:0,unk:false});
+    a.orders.add(l.oid); a.rev+=l.S+l.R; a.amt+=l.amt; a.profit+=l.profit; if(l.cogsUnknown) a.unk=true;
+    if(o && x.G && !l.adjust){ for(const s of o.skus){ const sh=s.g/x.G; const k=(sku[s.sku] ||= {name:s.name,varn:s.varn,rev:0,profit:0,units:0,unk:false});
+      k.rev+=(l.S+l.R)*sh; k.profit+=l.profit*sh; k.units+=s.qty*(l.S+l.R)/x.G; if(l.cogsUnknown) k.unk=true; } }
+  }
+  for(const x of M.orders){ const n=x.ls.filter(l=>l.d.slice(0,7)===m && !l.adjust); if(n.length && n.reduce((s,l)=>s+l.S+l.R,0)>0) okOrders.add(x.id); }
+  // tỷ lệ hủy theo kênh: đơn đặt trong tháng m
+  const cr={};
+  for(const x of M.orders){ if(!x.o||x.created.slice(0,7)!==m) continue; const c=x.o.channel||'Khác'; const a=(cr[c] ||= {n:0,cancel:0,bad:0}); a.n++;
+    if(x.cat==='cancelled') a.cancel++; if(x.cat==='failed'||x.cat==='returned') a.bad++; }
+  const skus=Object.values(sku).filter(k=>!k.unk && Math.abs(k.rev)>0);
+  return { ch, cr, ok:okOrders.size,
+    top: [...skus].sort((a,b)=>b.profit-a.profit).slice(0,5),
+    loss: skus.filter(k=>k.profit<0).sort((a,b)=>a.profit-b.profit).slice(0,5) };
+}
+function delta(cur, prev, {pp=false, invert=false}={}){
+  if(prev==null || !isFinite(prev) || (!pp && !prev)) return '';
+  const d = pp ? (cur-prev)*100 : (cur-prev)/Math.abs(prev)*100;
+  if(!isFinite(d)) return '';
+  const good = invert ? d<0 : d>0;
+  return `<span class="delta ${Math.abs(d)<0.05?'':good?'up':'down'}">${d>0?'▲':d<0?'▼':''} ${Math.abs(d).toFixed(1).replace('.',',')}${pp?' điểm':'%'}</span>`;
+}
+function renderHome(){
+  const m=month, t=plFor(m), ck=checksFor(m,t), p=pendingAt(m), D=dashFor(m);
+  const pm=M.months[M.months.indexOf(m)-1]; const pt=pm?plFor(pm):null; const pD=pm?dashFor(pm):null;
+  const est=!ck.ready, lock=S.locks[m];
+  const margin=t.rev?t.final/t.rev:null, pMargin=pt&&pt.rev&&!pt.noCogs?pt.final/pt.rev:null;
+  const unit=x=>`<span class="muted" style="font-size:15px;font-weight:500"> đ</span>`;
+
+  // ----- thanh trạng thái -----
+  const status = lock ? `<span class="tag t-ok">🔒 Đã chốt sổ ${fdate(lock.at)}</span>`
+    : ck.ready ? `<span class="tag t-ok">✓ Số liệu đầy đủ</span> <a href="#" onclick="go('pl');return false">Chốt sổ →</a>`
+    : `<span class="tag t-warn">Lợi nhuận tạm tính · còn ${ck.missing} mục</span>`;
+
+  // ----- cơ cấu doanh thu (thanh 100%) -----
+  const fee=-(t.fee+t.adj), cogs=t.cogs+t.pack, ext=t.ext;
+  const segs = t.noCogs
+    ? [['Phí sàn (sau bồi hoàn)',fee,'var(--c-fee)'],['Chưa có giá vốn',Math.max(0,t.rev-fee-ext),'var(--line)'],['Chi phí ngoài sàn',ext,'var(--c-ext)']]
+    : [['Phí sàn (sau bồi hoàn)',fee,'var(--c-fee)'],['Giá vốn + đóng gói',cogs,'var(--c-cogs)'],['Chi phí ngoài sàn',ext,'var(--c-ext)'],['Lợi nhuận ròng',Math.max(0,t.final),'var(--c-profit)']];
+  const tot=Math.max(t.rev, segs.reduce((s,x)=>s+x[1],0), 1);
+  const bar=segs.filter(s=>s[1]>0).map(s=>`<i style="width:${s[1]/tot*100}%;background:${s[2]}" title="${s[0]}: ${fm(s[1])}đ"></i>`).join('');
+  const legend=segs.map(s=>`<div class="lg"><span class="dot" style="background:${s[2]}"></span><span>${s[0]}</span><b>${fm(s[1])}</b><span class="muted">${pct(t.rev?s[1]/t.rev:null)}</span></div>`).join('')
+    + (!t.noCogs && t.final<0 ? `<div class="lg"><span class="dot" style="background:var(--neg)"></span><span class="neg">Lỗ</span><b class="neg">${fm(t.final)}</b><span></span></div>`:'');
+
+  // ----- cần chú ý -----
+  const att=[];
+  ck.list.slice(0,4).filter(c=>c.s!=='ok').forEach(c=>att.push({lv:c.s==='bad'?'bad':'warn', t:c.t, d:c.d, a:c.a}));
+  D.loss.length && att.push({lv:'bad', t:`${D.loss.length} sản phẩm bị lỗ trong tháng`, d:D.loss.slice(0,2).map(k=>`${k.name.slice(0,34)}… (${fm(k.profit)}đ)`).join('; '), a:['cogs','Xem']});
+  const crE=Object.entries(D.cr).filter(([,a])=>a.n>=20).map(([c,a])=>[c,a.cancel/a.n]).sort((a,b)=>b[1]-a[1]);
+  if(crE.length>1 && crE[0][1]>=0.3) att.push({lv:'warn', t:`Kênh ${crE[0][0]} bị hủy ${pct(crE[0][1])} số đơn`, d:`Cao nhất trong các kênh. Kênh thấp nhất: ${crE[crE.length-1][0]} ${pct(crE[crE.length-1][1])}.`, a:['returns','Xem lý do']});
+  const feeR=t.rev?-t.fee/t.rev:0; if(feeR>0.3) att.push({lv:'info', t:`Phí sàn chiếm ${pct(feeR)} doanh thu`, d:'Đơn giá trị thấp chịu tỷ lệ phí cao hơn. Cân nhắc combo để tăng giá trị đơn.', a:['pl','Chi tiết phí']});
+  p.n && att.push({lv:'info', t:`${p.n} đơn chưa quyết toán, khoảng ${fs(p.exp)} sắp về`, d:'Sẽ được tính vào báo cáo tháng sau.', a:null, f:`filterOrders({pending:'${m}'})`});
+
+  // ----- kênh bán -----
+  const chRows=Object.entries(D.ch).sort((a,b)=>b[1].rev-a[1].rev).map(([c,a])=>{ const cr=D.cr[c]; const noInfo=c.startsWith('Chưa rõ')||t.noCogs;
+    return `<tr><td>${esc(c)}</td><td class="n">${a.orders.size}</td><td class="n">${cr?pct(cr.cancel/cr.n):'—'}</td><td class="n">${fm(a.rev)}</td>
+      <td class="n">${noInfo?'<span class="muted">—</span>':fmc(a.profit)+(a.unk?' <span class="tag t-warn" title="Có đơn chưa có giá vốn">*</span>':'')}</td><td class="n">${noInfo||a.unk?'—':pct(a.rev?a.profit/a.rev:null)}</td></tr>`; }).join('');
+  const skuRow=k=>`<tr><td><div class="pname">${esc(k.name)}</div><div class="muted" style="font-size:12px">${esc(k.varn)} · ${Math.round(k.units)} cái</div></td><td class="n">${fm(k.rev)}</td><td class="n">${fmc(k.profit)}</td><td class="n">${pct(k.rev?k.profit/k.rev:null)}</td></tr>`;
+
+  const comp=M.lines.filter(l=>l.adjust&&l.d.slice(0,7)===m).reduce((s,l)=>s+l.amt,0);
+  const inM=x=>x.ls.some(l=>l.d.slice(0,7)===m) || (!x.ls.length && x.created.slice(0,7)===m);
+  const cnt=k=>M.orders.filter(x=>x.cat===k&&inM(x)).length;
+
+  $('#page').innerHTML=`
+  <div class="row" style="margin-bottom:14px;justify-content:space-between">
+    <div class="row">${status}${pm?`<span class="muted" style="font-size:12.5px">So với ${monthLabel(pm).toLowerCase()}</span>`:''}</div>
+    <details class="acc"><summary>Độ chính xác báo cáo (${4-ck.missing}/4)</summary>
+      <div class="acc-body">${ck.list.map(c=>`<div class="chk"><div class="ic ${c.s}">${{ok:'✓',bad:'!',warn:'!',na:'–'}[c.s]}</div><div><div class="t">${esc(c.t)}</div><div class="d">${esc(c.d)}</div></div>
+        ${c.a&&c.s!=='ok'?`<button class="btn sm act" onclick="go('${c.a[0]}')">${c.a[1]}</button>`:''}</div>`).join('')}</div></details>
+  </div>
+
+  <div class="grid g4">
+    <div class="card hero"><div class="l">Doanh thu thuần</div><div class="v">${fs(t.rev)}</div>
+      <div class="s">${delta(t.rev,pt&&pt.rev)} Sau khi trừ hoàn/hủy</div></div>
+    <div class="card hero"><div class="l">Tiền thực nhận ${t.hasEarn&&Math.abs(t.amt-t.earn)<1?'<span class="tag t-ok">✓ khớp ví</span>':''}</div><div class="v">${fs(t.amt)}</div>
+      <div class="s">${delta(t.amt,pt&&pt.amt)} ${fm(t.amt)}đ</div></div>
+    <div class="card hero" ${t.noCogs?`style="cursor:pointer" onclick="go('cogs')"`:''}><div class="l">Lợi nhuận ròng ${t.noCogs?'<span class="tag t-bad">cần giá vốn</span>':est?'<span class="tag t-warn">tạm tính</span>':'<span class="tag t-ok">chính xác</span>'}</div>
+      <div class="v ${t.noCogs?'muted':t.final<0?'neg':'pos'}">${t.noCogs?'—':fs(t.final)}</div>
+      <div class="s">${t.noCogs?'Nhập giá vốn để tính':`Biên <b>${pct(margin)}</b> ${pMargin!=null?delta(margin,pMargin,{pp:true}):''}${t.cogsUnknownAmt?' · <span class="warn">chưa đủ giá vốn</span>':''}`}</div></div>
+    <div class="card hero"><div class="l">Đơn giao thành công</div><div class="v">${fm(D.ok)}</div>
+      <div class="s">${delta(D.ok,pD&&pD.ok)} TB ${fs(D.ok?t.rev/D.ok:null)}/đơn</div></div>
+  </div>
+
+  <div class="grid g-main">
+    <div class="card"><h2>Doanh thu ${fs(t.rev)} được chia thế nào?</h2><p class="desc">Mỗi 100đ doanh thu thuần đi về đâu trong ${monthLabel(m).toLowerCase()}</p>
+      <div class="stack">${bar}</div>
+      <div class="legend">${legend}</div>
+      ${!t.noCogs&&t.cogsUnknownAmt?`<div class="callout warn" style="margin:12px 0 0;font-size:12.5px">Lợi nhuận đang <b>cao hơn thực tế</b> vì có ${fs(t.cogsUnknownAmt)} doanh thu chưa tính giá vốn (${t.noOrder?'thiếu file đơn tháng trước':'thiếu giá vốn'}).</div>`:''}
+      <div class="row" style="margin-top:14px;gap:8px"><button class="btn sm" onclick="go('pl')">Xem bảng lãi lỗ chi tiết →</button></div>
+    </div>
+    <div class="card"><h2>Cần chú ý</h2><p class="desc">Tự động phát hiện từ số liệu tháng này</p>
+      ${att.length?att.slice(0,5).map(a=>`<div class="att ${a.lv}"><div><div class="t">${esc(a.t)}</div><div class="d">${esc(a.d)}</div></div>
+        ${a.a?`<button class="btn sm" onclick="go('${a.a[0]}')">${a.a[1]}</button>`:a.f?`<button class="btn sm" onclick="${a.f}">Xem</button>`:''}</div>`).join('')
+        :'<p class="muted">Không có vấn đề nào cần chú ý. 👍</p>'}
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Theo kênh bán</h2><p class="desc">Tiền quyết toán trong tháng theo nơi khách đặt hàng. Tỷ lệ hủy tính trên đơn đặt trong tháng.</p>
+      <div class="tbl"><table><tr><th>Kênh</th><th class="n">Đơn</th><th class="n">Hủy</th><th class="n">Doanh thu</th><th class="n">Lợi nhuận</th><th class="n">Biên</th></tr>${chRows}</table></div>
+      ${Object.values(D.ch).some(a=>a.unk)?'<p class="muted" style="font-size:12px;margin:8px 0 0">* Có đơn chưa tính được giá vốn (thiếu file đơn tháng trước hoặc thiếu giá).</p>':''}</div>
+    <div class="card"><h2>Sản phẩm lãi nhiều nhất</h2><p class="desc">Theo lợi nhuận trong tháng, sau phí sàn và giá vốn</p>
+      ${D.top.length?`<div class="tbl"><table><tr><th>Sản phẩm</th><th class="n">Doanh thu</th><th class="n">Lợi nhuận</th><th class="n">Biên</th></tr>${D.top.map(skuRow).join('')}</table></div>`:'<p class="muted">Cần nhập giá vốn để xếp hạng sản phẩm.</p>'}
+      ${D.loss.length?`<h2 style="margin-top:18px" class="neg">Sản phẩm bị lỗ</h2><div class="tbl"><table>${D.loss.map(skuRow).join('')}</table></div>`:''}</div>
+  </div>
+
+  <div class="grid g4">
+    <div class="card hero mini" style="cursor:pointer" onclick="filterOrders({pending:'${m}'})"><div class="l">Tiền sắp về <span class="tag">ước tính</span></div><div class="v">${fs(p.exp)}</div><div class="s">${p.n} đơn chưa quyết toán</div></div>
+    <div class="card hero mini" style="cursor:pointer" onclick="go('returns')"><div class="l">Hủy trước giao</div><div class="v">${cnt('cancelled')}</div><div class="s">Không ảnh hưởng lãi/lỗ</div></div>
+    <div class="card hero mini" style="cursor:pointer" onclick="go('returns')"><div class="l">Giao thất bại · Trả hàng</div><div class="v">${cnt('failed')} · ${cnt('returned')}</div><div class="s">Mất phí ship, phí sàn</div></div>
+    <div class="card hero mini" style="cursor:pointer" onclick="go('returns')"><div class="l">Sàn bồi hoàn</div><div class="v pos">+${fs(comp)}</div><div class="s">Đã cộng vào tiền thực nhận</div></div>
+  </div>
+  ${t.hasEarn&&Object.keys(M.wd).length?`<div class="card"><h2>Ví TikTok trong tháng</h2><div class="row" style="gap:32px;margin-top:8px">
+    <div><div class="muted">Tiền vào ví</div><b style="font-size:17px">${fm(t.earn)}</b></div>
+    <div><div class="muted">Đã rút về ngân hàng</div><b style="font-size:17px">${fm(t.wd)}</b></div>
+    <div><div class="muted">Chênh lệch</div><b style="font-size:17px">${fmc(t.earn-t.wd)}</b></div>
+    <div class="muted" style="flex:1;min-width:220px;font-size:12.5px">${t.wd>t.earn?'Tháng này bạn rút nhiều hơn số tiền vào ví, tức là đã rút cả số dư còn lại từ tháng trước.':'Phần chênh lệch dương là số tiền còn nằm trong ví TikTok.'}</div></div></div>`:''}`;
+}
+
+/* ---------- Lãi lỗ tháng ---------- */
+function renderPL(){
+  const m=month, t=plFor(m), p=pendingAt(m), lock=S.locks[m], ck=checksFor(m,t);
+  const feeRows=FEE_LABELS.map((lb,i)=>Math.round(t.f[i])?`<tr class="sub"><td>${lb}</td><td class="n">${fm(t.f[i])}</td><td class="n muted">${pct(t.rev?-t.f[i]/t.rev:null)}</td></tr>`:'').join('');
+  const extRows=t.costs.items.filter(i=>i.v).map(i=>`<tr class="sub"><td>${i.lb}</td><td class="n">${fm(-i.v)}</td><td></td></tr>`).join('');
+  const createdRows=Object.entries(t.byCreated).sort().map(([cm,b])=>`<tr><td>Đơn đặt ${cm==='?'?'(không rõ)':monthLabel(cm).toLowerCase()} ${cm<m?'<span class="tag t-info">tháng trước</span>':''}</td><td class="n">${b.n}</td><td class="n">${fm(b.amt)}</td></tr>`).join('');
+  const mc=S.monthCosts[m]||{};
+  $('#page').innerHTML=`
+  <div class="callout">Báo cáo ${monthLabel(m).toLowerCase()} tính <b>mọi khoản TikTok quyết toán từ 01/${m.slice(5,7)} đến ${lastDay(m)}/${m.slice(5,7)}</b>, không phân biệt đơn đặt lúc nào. Đơn chưa quyết toán sẽ vào tháng sau. Khi đã chốt sổ, số liệu tháng này không bao giờ phải sửa lại.</div>
+  ${lock&&Math.abs(lock.profit-t.final)>=1?`<div class="callout bad">Tháng này đã chốt ngày ${fdate(lock.at)} với lợi nhuận ${fm(lock.profit)}đ, nhưng số hiện tại là ${fm(t.final)}đ. Nếu đã nộp báo cáo, hãy giữ số cũ và ghi chênh lệch vào tháng hiện tại.</div>`:''}
+  <div class="grid g-main">
+    <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><div><h2>Báo cáo lãi lỗ</h2><p class="desc" style="margin:0">${monthLabel(m)} · ${t.orders.size} đơn có phát sinh tiền</p></div>
+      ${ck.ready?'<span class="tag t-ok">Số liệu đầy đủ</span>':`<span class="tag t-warn">Tạm tính · thiếu ${ck.missing} mục</span>`}</div>
+      <div class="tbl"><table>
+        <tr><th>Khoản mục</th><th class="n">Số tiền (đ)</th><th class="n">% DT thuần</th></tr>
+        <tr><td>Doanh thu bán hàng</td><td class="n">${fm(t.S)}</td><td></td></tr>
+        <tr><td>Hoàn tiền, hủy, giao thất bại</td><td class="n">${fm(t.R)}</td><td></td></tr>
+        <tr class="total"><td>Doanh thu thuần</td><td class="n">${fm(t.rev)}</td><td class="n">100%</td></tr>
+        <tr><td>Phí &amp; thuế sàn</td><td class="n">${fm(t.fee)}</td><td class="n muted">${pct(t.rev?-t.fee/t.rev:null)}</td></tr>
+        ${feeRows}
+        <tr><td>Sàn bồi hoàn / điều chỉnh</td><td class="n">${fmc(t.adj)}</td><td></td></tr>
+        <tr class="total"><td>Tiền thực nhận ${t.hasEarn&&Math.abs(t.amt-t.earn)<1?'<span class="tag t-ok">✓ khớp ví</span>':''}</td><td class="n">${fm(t.amt)}</td><td class="n">${pct(t.rev?t.amt/t.rev:null)}</td></tr>
+        <tr><td>Giá vốn hàng bán ${t.skuMissing?'<span class="tag t-bad">thiếu</span>':t.skuEst?'<span class="tag t-warn">tạm tính</span>':''}</td><td class="n">${fm(-t.cogs)}</td><td class="n muted">${pct(t.rev?t.cogs/t.rev:null)}</td></tr>
+        ${t.pack?`<tr><td>Đóng gói</td><td class="n">${fm(-t.pack)}</td><td></td></tr>`:''}
+        <tr class="total"><td>Lợi nhuận gộp</td><td class="n">${t.noCogs?'<span class="muted">cần giá vốn</span>':fmc(t.profit)}</td><td class="n">${t.noCogs?'':pct(t.rev?t.profit/t.rev:null)}</td></tr>
+        <tr><td>Chi phí ngoài sàn</td><td class="n">${fm(-t.ext)}</td><td class="n muted">${pct(t.rev?t.ext/t.rev:null)}</td></tr>
+        ${extRows}
+        <tr class="total"><td>LỢI NHUẬN RÒNG</td><td class="n">${t.noCogs?'<span class="muted">cần giá vốn</span>':fmc(t.final)}</td><td class="n">${t.noCogs?'':pct(t.rev?t.final/t.rev:null)}</td></tr>
+      </table></div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="lockBtn">${lock?'Chốt lại sổ':'Chốt sổ tháng này'}</button>
+        <button class="btn" id="expPL">Xuất Excel</button>
+        ${lock?`<span class="tag t-ok">Đã chốt ${fdate(lock.at)}</span>`:''}
+      </div>
+    </div>
+    <div>
+      <div class="card"><h2>Chi phí ngoài sàn</h2><p class="desc">Các khoản không nằm trong file TikTok. Nhập tổng của ${monthLabel(m).toLowerCase()}.</p>
+        ${COST_CATS.map(([k,lb])=>`<div class="row" style="justify-content:space-between;padding:5px 0"><span>${lb}</span><input class="money" data-mc="${k}" value="${mc[k]?fm(mc[k]):''}" placeholder="0" inputmode="numeric"></div>`).join('')}
+        <label class="row" style="margin-top:10px;font-size:13px"><input type="checkbox" id="noCost" ${mc.confirmed?'checked':''}> Đã nhập đủ (hoặc tháng này không có chi phí nào khác)</label>
+      </div>
+      <div class="card"><h2>Tiền tháng này đến từ đơn đặt khi nào?</h2><p class="desc">Đơn đặt tháng trước nhưng quyết toán tháng này thì tính vào tháng này.</p>
+        <table><tr><th>Nhóm</th><th class="n">Dòng</th><th class="n">Thực nhận</th></tr>${createdRows}</table></div>
+      <div class="card"><h2>Đơn treo cuối tháng</h2><p class="desc">Chưa quyết toán nên chưa tính vào tháng này.</p>
+        <table><tr><td>Đã giao, chờ quyết toán</td><td class="n">${p.delivered.length} đơn</td><td class="n">${fm(p.delivered.reduce((s,x)=>s+x.G,0))}</td></tr>
+          <tr><td>Đang giao, chờ lấy hàng</td><td class="n">${p.shipping.length} đơn</td><td class="n">${fm(p.shipping.reduce((s,x)=>s+x.G,0))}</td></tr>
+          <tr class="total"><td>Dự kiến thực nhận</td><td></td><td class="n">≈ ${fm(p.exp)}</td></tr></table>
+        <button class="btn sm" style="margin-top:10px" onclick="filterOrders({pending:'${m}'})">Xem danh sách</button></div>
+    </div>
+  </div>
+  <div class="card"><details><summary>Phân tích theo tháng đặt hàng (dùng để đánh giá, không dùng để báo cáo)</summary>${cohortHTML()}</details></div>`;
+  $$('[data-mc]').forEach(inp=>{ inp.onchange=async()=>{ (S.monthCosts[m] ||= {})[inp.dataset.mc]=num(inp.value); await save(); compute(); renderPL(); }; });
+  $('#noCost').onchange=async e=>{ (S.monthCosts[m] ||= {}).confirmed=e.target.checked; await save(); renderPL(); };
+  $('#lockBtn').onclick=async()=>{ if(!ck.ready && !confirm('Báo cáo còn thiếu dữ liệu (lợi nhuận đang là tạm tính). Vẫn chốt sổ?')) return;
+    S.locks[m]={at:new Date().toISOString().slice(0,10), amt:t.amt, profit:t.final, rev:t.rev}; await save(); renderPL(); };
+  $('#expPL').onclick=()=>exportMonth(m);
+}
+function cohortHTML(){
+  const g={};
+  for(const x of M.orders){ if(!x.o) continue; const m=x.created.slice(0,7); const k=(x.cat==='waitSettle'||x.cat==='shipping')?'waiting':x.cat;
+    const c=(g[m] ||= {n:0,cancelled:0,failed:0,returned:0,settled:0,waiting:0,amt:0,profit:0,rev:0}); c.n++; c[k]=(c[k]||0)+1;
+    c.amt+=x.net.amt; c.profit+=x.net.profit; c.rev+=x.net.S+x.net.R; }
+  return `<p class="desc" style="margin-top:12px">Gom theo ngày đặt hàng, gồm cả các khoản quyết toán rơi sang tháng sau. Số liệu sẽ còn thay đổi cho đến khi mọi đơn của tháng đó quyết toán xong (khoảng 30–45 ngày).</p>
+  <div class="tbl"><table><tr><th>Tháng đặt</th><th class="n">Đơn</th><th class="n">Hủy</th><th class="n">Thất bại</th><th class="n">Trả hàng</th><th class="n">Tỷ lệ hoàn</th><th class="n">Thực nhận</th><th class="n">Lợi nhuận</th><th>Tình trạng</th></tr>
+  ${Object.entries(g).sort().reverse().map(([m,c])=>{const sh=c.n-c.cancelled; return `<tr class="click" onclick="filterOrders({created:'${m}'})"><td>${monthLabel(m)}</td><td class="n">${c.n}</td><td class="n">${c.cancelled}</td><td class="n">${c.failed}</td><td class="n">${c.returned}</td><td class="n">${pct(sh?(c.failed+c.returned)/sh:null)}</td><td class="n">${fm(c.amt)}</td><td class="n">${fmc(c.profit)}</td><td>${c.waiting?`<span class="tag t-warn">còn ${c.waiting} đơn</span>`:'<span class="tag t-ok">xong</span>'}</td></tr>`;}).join('')}</table></div>`;
+}
+
+/* ---------- Đơn hàng ---------- */
+let OF={ cat:'', q:'', created:'', settle:'', pending:'', sort:'created', page:0 };
+function filterOrders(f){ OF=Object.assign({cat:'',q:'',created:'',settle:'',pending:'',sort:'created',page:0},f); go('orders'); }
+function renderOrders(){
+  let pendSet=null; if(OF.pending){ const p=pendingAt(OF.pending); pendSet=new Set([...p.shipping,...p.delivered].map(x=>x.id)); }
+  const base=M.orders.filter(x=>{
+    if(pendSet && !pendSet.has(x.id)) return false;
+    if(OF.created && x.created.slice(0,7)!==OF.created) return false;
+    if(OF.settle && !x.ls.some(l=>l.d.slice(0,7)===OF.settle)) return false;
+    if(OF.q){ const q=OF.q.toLowerCase(); if(!(x.id.includes(q) || (x.o && (x.o.skus.some(s=>s.name.toLowerCase().includes(q)) || x.o.creator.toLowerCase().includes(q))))) return false; }
+    return true; });
+  const match=(x,k)=> k==='' ? true : k==='loss' ? (x.ls.length && x.net.profit<0) : k==='comp' ? x.hasComp : x.cat===k;
+  let list=base.filter(x=>match(x,OF.cat));
+  const sorters={ created:(a,b)=>b.created.localeCompare(a.created), profit:(a,b)=>a.net.profit-b.net.profit, profitDesc:(a,b)=>b.net.profit-a.net.profit };
+  list.sort(sorters[OF.sort]);
+  const cnt=k=>base.filter(x=>match(x,k)).length;
+  const chipKeys=[['','Tất cả'],['settled','Đã quyết toán'],['waitSettle','Chờ quyết toán'],['shipping','Đang giao'],['returned','Trả hàng'],['failed','Giao thất bại'],['cancelled','Hủy'],['comp','Có bồi hoàn'],['loss','Bị lỗ'],['onlySettle','Thiếu file đơn']];
+  const per=50, pages=Math.max(1,Math.ceil(list.length/per)); OF.page=Math.min(OF.page,pages-1);
+  const tot=list.reduce((a,x)=>(a.amt+=x.net.amt,a.p+=x.net.profit,a),{amt:0,p:0});
+  const ms=[...new Set(M.orders.map(x=>x.created.slice(0,7)).filter(Boolean))].sort();
+  const filt=[OF.pending&&`Đơn treo cuối ${monthLabel(OF.pending).toLowerCase()}`, OF.created&&`Đặt ${monthLabel(OF.created).toLowerCase()}`, OF.settle&&`Quyết toán ${monthLabel(OF.settle).toLowerCase()}`].filter(Boolean);
+  $('#page').innerHTML=`<div class="card">
+    <div class="row" style="margin-bottom:14px">
+      <input id="q" placeholder="Tìm mã đơn, tên sản phẩm, KOC…" value="${esc(OF.q)}" style="flex:1;min-width:220px">
+      <select id="fcr"><option value="">Mọi tháng đặt</option>${ms.map(m=>`<option value="${m}">Đặt ${monthLabel(m).toLowerCase()}</option>`).join('')}</select>
+      <select id="fst"><option value="">Mọi tháng quyết toán</option>${M.months.map(m=>`<option value="${m}">Quyết toán ${monthLabel(m).toLowerCase()}</option>`).join('')}</select>
+      <select id="fsort"><option value="created">Mới nhất</option><option value="profit">Lỗ nhiều nhất</option><option value="profitDesc">Lãi nhiều nhất</option></select>
+    </div>
+    <div class="chips">${chipKeys.map(([k,lb])=>{const n=cnt(k); return n||k===''||OF.cat===k?`<button class="chip ${OF.cat===k?'on':''}" data-cat="${k}">${lb}<b>${n}</b></button>`:'';}).join('')}</div>
+    ${filt.length?`<div class="callout" style="margin:14px 0 0">Đang lọc: ${filt.join(' · ')} · <a href="#" onclick="filterOrders({});return false">bỏ lọc</a></div>`:''}
+    <div class="row muted" style="margin:14px 0 4px;font-size:13px">${list.length} đơn · thực nhận <b style="color:var(--text)">${fm(tot.amt)}đ</b> · lợi nhuận <b style="color:var(--text)">${fm(tot.p)}đ</b></div>
+    <div class="tbl"><table>
+      <tr><th>Đơn hàng</th><th>Sản phẩm</th><th>Tình trạng</th><th class="n">Giá trị</th><th class="n">Thực nhận</th><th class="n">Lợi nhuận</th></tr>
+      ${list.slice(OF.page*per,(OF.page+1)*per).map(x=>`<tr class="click" data-id="${x.id}">
+        <td><div class="idc">${x.id}</div><div style="font-size:12.5px">Đặt ${fdd(x.created)}${x.lastSettle?` · QT ${fdd(x.lastSettle)}`:''}</div></td>
+        <td><div class="pname">${x.o?esc(x.o.skus[0].name):'<span class="muted">—</span>'}</div>${x.o&&x.o.skus.length>1?`<div class="muted" style="font-size:12px">+${x.o.skus.length-1} sản phẩm khác</div>`:''}</td>
+        <td><span class="tag ${CAT[x.cat][1]}">${CAT[x.cat][0]}</span>${x.hasComp?` <span class="tag t-ok">+${fs(x.net.comp)} bồi hoàn</span>`:''}</td>
+        <td class="n">${fm(x.G||x.net.S)}</td>
+        <td class="n">${x.ls.length?fm(x.net.amt):'<span class="muted">—</span>'}</td>
+        <td class="n">${!x.ls.length?'<span class="muted">—</span>':x.ls.some(l=>l.cogsUnknown)?'<span class="tag t-warn">thiếu giá vốn</span>':`${fmc(x.net.profit)}<div class="muted" style="font-size:12px">${pct(x.margin)}</div>`}</td></tr>`).join('')}
+    </table></div>
+    ${!list.length?'<div class="empty">Không có đơn nào khớp bộ lọc.</div>':''}
+    <div class="pager"><span class="muted">Trang ${OF.page+1}/${pages}</span><button class="btn sm" id="pp" ${OF.page?'':'disabled'}>‹ Trước</button><button class="btn sm" id="pn" ${OF.page<pages-1?'':'disabled'}>Sau ›</button></div>
+  </div>`;
+  $('#fcr').value=OF.created; $('#fst').value=OF.settle; $('#fsort').value=OF.sort;
+  const re=()=>{OF.page=0; renderOrders();};
+  $('#q').oninput=e=>{OF.q=e.target.value; clearTimeout(window._qt); window._qt=setTimeout(()=>{re(); const q=$('#q'); q.focus(); q.setSelectionRange(q.value.length,q.value.length);},250);};
+  $('#fcr').onchange=e=>{OF.created=e.target.value;re();}; $('#fst').onchange=e=>{OF.settle=e.target.value;re();}; $('#fsort').onchange=e=>{OF.sort=e.target.value;re();};
+  $$('[data-cat]').forEach(b=>b.onclick=()=>{OF.cat=b.dataset.cat;re();});
+  $('#pp').onclick=()=>{OF.page--;renderOrders();window.scrollTo(0,0);}; $('#pn').onclick=()=>{OF.page++;renderOrders();window.scrollTo(0,0);};
+  $$('#page tr[data-id]').forEach(tr=>tr.onclick=()=>showOrder(tr.dataset.id));
+}
+function showOrder(id){
+  const x=M.byId[id]; const o=x.o;
+  $('#drawer').innerHTML=`<div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:12px">Đơn hàng</div><div style="font-weight:700;font-size:16px" class="idc">${id}</div></div><button class="btn sm" id="dclose">Đóng ✕</button></div>
+    <div class="row" style="margin-top:10px"><span class="tag ${CAT[x.cat][1]}">${CAT[x.cat][0]}</span>${x.hasComp?`<span class="tag t-ok">Sàn bồi hoàn +${fm(x.net.comp)}</span>`:''}</div>
+    <div class="explain">${esc(explain(x))}</div>
+    ${x.ls.length?`<div class="grid g3" style="gap:10px">
+      <div><div class="muted" style="font-size:12px">Thực nhận</div><b style="font-size:17px">${fm(x.net.amt)}</b></div>
+      <div><div class="muted" style="font-size:12px">Giá vốn + đóng gói</div><b style="font-size:17px">${x.ls.some(l=>l.cogsUnknown)?'?':fm(x.net.cogs+x.net.pack)}</b></div>
+      <div><div class="muted" style="font-size:12px">Lợi nhuận</div><b style="font-size:17px">${fmc(x.net.profit)}</b></div></div>`:''}
+    ${o?`<h3>Thông tin đơn</h3><div class="kv">
+      <div>Ngày đặt</div><div>${fdate(o.created)}</div>
+      ${o.shipped?`<div>Gửi hàng</div><div>${fdate(o.shipped)}</div>`:''}${o.delivered?`<div>Giao thành công</div><div>${fdate(o.delivered)}</div>`:''}${o.cancelled?`<div>Hủy</div><div>${fdate(o.cancelled)}${o.cancelReason?' · '+esc(o.cancelReason):''}</div>`:''}
+      <div>Kênh</div><div>${esc(o.channel)}${o.creator?' · KOC '+esc(o.creator):''}</div>
+      <div>Vận chuyển</div><div>${esc(o.carrier)} · ${esc(o.province)}</div>
+      <div>Trạng thái TikTok</div><div>${esc(o.status)} / ${esc(o.sub)}${o.crType?' / '+esc(o.crType):''}</div></div>
+    <h3>Sản phẩm</h3><table><tr><th>Sản phẩm</th><th class="n">SL</th><th class="n">Giá bán</th><th class="n">Giá vốn/sp</th></tr>
+      ${o.skus.map(s=>`<tr><td>${esc(s.name)}<div class="muted" style="font-size:12px">${esc(s.varn)}${s.ret?` · trả ${s.ret}`:''}</div></td><td class="n">${s.qty}</td><td class="n">${fm(s.g)}</td><td class="n">${S.cogs[s.sku]!=null&&S.cogs[s.sku]!==''?fm(S.cogs[s.sku]):'<span class="tag t-warn">chưa có</span>'}</td></tr>`).join('')}</table>`:''}
+    <h3>Các lần TikTok quyết toán</h3>
+    ${x.ls.length?`<div class="tbl"><table><tr><th>Ngày</th><th>Loại</th><th class="n">Doanh thu</th><th class="n">Hoàn</th><th class="n">Phí</th><th class="n">Thực nhận</th></tr>
+      ${x.ls.map(l=>`<tr><td>${fdate(l.d)}</td><td>${l.adjust?'<span class="tag t-ok">Bồi hoàn</span>':'Đơn hàng'}</td><td class="n">${fm(l.S)}</td><td class="n">${fm(l.R)}</td><td class="n">${fm(l.fee)}</td><td class="n">${fmc(l.amt)}</td></tr>`).join('')}
+      <tr class="total"><td colspan="5">Tổng</td><td class="n">${fmc(x.net.amt)}</td></tr></table></div>
+      <p class="muted" style="font-size:12.5px">Mỗi dòng được tính vào báo cáo của tháng có ngày quyết toán tương ứng.</p>`
+      :'<p class="muted">Chưa có khoản quyết toán nào.</p>'}`;
+  $('#overlay').classList.remove('hide');
+  $('#dclose').onclick=closeDrawer;
+}
+function closeDrawer(){ $('#overlay').classList.add('hide'); }
+
+/* ---------- Hoàn & bồi hoàn ---------- */
+function renderReturns(){
+  const m=month;
+  const inM = x => x.ls.some(l=>l.d.slice(0,7)===m) || (!x.ls.length && x.created.slice(0,7)===m);
+  const lsM = x => x.ls.filter(l=>l.d.slice(0,7)===m);
+  const amtM = x => lsM(x).reduce((s,l)=>s+l.amt,0), profM = x => lsM(x).reduce((s,l)=>s+l.profit,0);
+  const pick = cat => M.orders.filter(x=>x.cat===cat && inM(x));
+  const cancelled=pick('cancelled'), failed=pick('failed'), returned=pick('returned');
+  const compLines=M.lines.filter(l=>l.adjust && l.d.slice(0,7)===m), compSum=compLines.reduce((s,l)=>s+l.amt,0);
+  const sumBy=(xs,f)=>xs.reduce((s,x)=>s+f(x),0);
+  const reasons={}; cancelled.forEach(x=>{const r=x.o.cancelReason||'(không rõ)'; reasons[r]=(reasons[r]||0)+1;});
+  const allCreated=M.orders.filter(x=>x.o&&x.created.slice(0,7)===m).length;
+  const rows=xs=>`<div class="tbl"><table><tr><th>Đơn hàng</th><th>Diễn giải</th><th class="n">Tiền trong tháng</th></tr>
+    ${xs.map(x=>`<tr class="click" data-id="${x.id}"><td><div class="idc">${x.id}</div><div class="pname" style="font-size:12.5px;min-width:200px">${x.o?esc(x.o.skus[0].name):''}</div></td><td style="font-size:13px">${esc(explain(x))}</td><td class="n">${x.ls.length?fmc(amtM(x)):'—'}</td></tr>`).join('')}</table></div>`;
+  $('#page').innerHTML=`
+  <div class="callout"><b>Các đơn này có được tính vào báo cáo không?</b> Có. Tất cả đã nằm sẵn trong lãi lỗ ${monthLabel(m).toLowerCase()} theo ngày quyết toán. Mỗi loại ảnh hưởng khác nhau, như mô tả ở từng thẻ bên dưới.</div>
+  <div class="grid g4">
+    <div class="card hero mini" style="cursor:pointer" data-go="cancelled"><div class="l">Hủy trước giao</div><div class="v">${cancelled.length}</div><div class="s">${allCreated?pct(cancelled.length/allCreated)+' số đơn đặt. ':''}Không thu, không chi, lãi/lỗ bằng 0</div></div>
+    <div class="card hero mini" style="cursor:pointer" data-go="failed"><div class="l">Giao thất bại</div><div class="v">${failed.length}</div><div class="s neg">Mất ${fm(-sumBy(failed,profM))}đ phí ship hai chiều, đóng gói</div></div>
+    <div class="card hero mini" style="cursor:pointer" data-go="returned"><div class="l">Trả hàng / hoàn tiền</div><div class="v">${returned.length}</div><div class="s">Đã hoàn ${fm(-sumBy(returned,x=>lsM(x).reduce((s,l)=>s+l.R,0)))}đ cho khách</div></div>
+    <div class="card hero mini" style="cursor:pointer" data-go="comp"><div class="l">Sàn bồi hoàn</div><div class="v pos">+${fm(compSum)}</div><div class="s">${compLines.length} khoản, đã vào ví</div></div>
+  </div>
+  <div class="card" id="sec-comp"><h2>Tiền sàn bồi hoàn đã chi trả</h2><p class="desc">TikTok trả lại cho shop khi khách khiếu nại hoặc hoàn tiền mà lỗi không thuộc về shop. Khoản này đã cộng vào tiền thực nhận.</p>
+    ${compLines.length?`<div class="tbl"><table><tr><th>Ngày nhận</th><th>Đơn liên quan</th><th>Tình trạng đơn</th><th class="n">Số tiền</th></tr>
+      ${compLines.map(l=>{const x=M.byId[l.oid]; return `<tr class="click" data-id="${l.oid}"><td>${fdate(l.d)}</td><td><div class="idc">${l.oid}</div><div class="pname" style="font-size:12.5px">${x&&x.o?esc(x.o.skus[0].name):'<span class="muted">đơn tháng trước, chưa tải file đơn</span>'}</div></td>
+        <td>${x?`<span class="tag ${CAT[x.cat][1]}">${CAT[x.cat][0]}</span>`:''}</td><td class="n pos">+${fm(l.amt)}</td></tr>`;}).join('')}
+      <tr class="total"><td colspan="3">Tổng</td><td class="n pos">+${fm(compSum)}</td></tr></table></div>`:'<p class="muted">Không có khoản bồi hoàn nào trong tháng.</p>'}</div>
+  <div class="card" id="sec-failed"><h2>Giao thất bại · ${failed.length} đơn</h2><p class="desc">Hàng quay về kho. Bạn mất phí ship hai chiều. Hãy kiểm tra hàng đã thực sự về đủ chưa.</p>${failed.length?rows(failed):'<p class="muted">Không có.</p>'}</div>
+  <div class="card" id="sec-returned"><h2>Trả hàng / hoàn tiền · ${returned.length} đơn</h2><p class="desc">Doanh thu bị trừ lại. Phí sàn có thể không được hoàn đủ.</p>${returned.length?rows(returned):'<p class="muted">Không có.</p>'}</div>
+  <div class="card" id="sec-cancelled"><h2>Lý do khách hủy · ${cancelled.length} đơn</h2><p class="desc">Không mất tiền nhưng mất cơ hội bán. Lý do hủy cho biết cần cải thiện điều gì.</p>
+    <div class="tbl"><table><tr><th>Lý do</th><th class="n">Số đơn</th><th style="width:40%"></th></tr>
+    ${Object.entries(reasons).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<tr><td>${esc(r)}</td><td class="n">${n}</td><td><div class="prog" style="margin:0"><i style="width:${n/cancelled.length*100}%"></i></div></td></tr>`).join('')}</table></div>
+    <button class="btn sm" style="margin-top:12px" onclick="filterOrders({cat:'cancelled',created:'${m}'})">Xem danh sách đơn hủy</button></div>`;
+  $$('#page tr[data-id]').forEach(tr=>tr.onclick=()=>showOrder(tr.dataset.id));
+  $$('#page [data-go]').forEach(c=>c.onclick=()=>$('#sec-'+c.dataset.go).scrollIntoView({behavior:'smooth'}));
+}
+
+/* ---------- Giá vốn ---------- */
+function productList(){
+  const map={};
+  for(const o of Object.values(S.orders)) for(const s of o.skus){ const p=(map[s.sku] ||= {sku:s.sku,name:s.name,varn:s.varn,price:0,n:0}); p.price=Math.max(p.price, s.qty? s.g/s.qty:0); p.n+=s.qty; }
+  return Object.values(map).sort((a,b)=>b.n-a.n);
+}
+let CF={ q:'', onlyMissing:false, pct:60 };
+function renderCogs(){
+  const ps=productList(); const isMissing=p=>S.cogs[p.sku]==null||S.cogs[p.sku]==='';
+  const missing=ps.filter(isMissing).length, estN=ps.filter(p=>S.cogsEst[p.sku]).length, done=ps.length-missing;
+  let shown = CF.onlyMissing ? ps.filter(p=>isMissing(p)||S.cogsEst[p.sku]) : ps;
+  if(CF.q) shown=shown.filter(p=>(p.name+' '+p.varn).toLowerCase().includes(CF.q.toLowerCase()));
+  // lợi nhuận theo SKU trong tháng đang chọn
+  const agg={};
+  for(const l of M.lines){ if(l.d.slice(0,7)!==month) continue; const x=M.byId[l.oid]; if(!x||!x.o||!x.G) continue;
+    for(const s of x.o.skus){ const sh=s.g/x.G; const a=(agg[s.sku] ||= {rev:0,profit:0}); a.rev+=(l.S+l.R)*sh; a.profit+=l.profit*sh; } }
+  $('#page').innerHTML=`
+  <div class="grid g-main">
+    <div class="card"><h2>Tiến độ nhập giá vốn</h2>
+      <div class="row" style="align-items:baseline;gap:8px;margin-top:6px"><b style="font-size:26px">${done}/${ps.length}</b><span class="muted">sản phẩm đã có giá vốn${estN?` · ${estN} đang là giá tạm tính`:''}</span></div>
+      <div class="prog"><i style="width:${ps.length?done/ps.length*100:0}%"></i></div>
+      <p class="desc" style="margin:12px 0 0">Cách nhanh nhất: bấm <b>Xuất file Excel</b>, điền cột "Giá vốn" (giá nhập + ship về kho cho 1 sản phẩm), rồi bấm <b>Nhập file</b>.</p>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="expC">Xuất file Excel</button><label class="btn">Nhập file<input type="file" id="impC" accept=".xlsx,.xls,.csv" hidden></label></div>
+    </div>
+    <div class="card"><h2>Chưa có giá thật?</h2><p class="desc">Điền tạm theo % giá bán để xem trước lãi/lỗ. Báo cáo sẽ ghi "tạm tính" cho đến khi bạn thay bằng giá thật.</p>
+      <div class="row">Giá vốn ≈ <input class="money" id="estPct" style="width:70px" value="${CF.pct}">% giá bán <button class="btn" id="estGo">Điền tạm ${missing} sản phẩm còn trống</button></div>
+      ${estN?`<button class="btn danger sm" id="estClr" style="margin-top:10px">Xóa ${estN} giá tạm tính</button>`:''}
+      <h2 style="margin-top:18px">Cài đặt tính giá vốn</h2>
+      <div class="row" style="justify-content:space-between;margin-top:8px"><span>Chi phí đóng gói mỗi đơn</span><input class="money" id="pack" value="${S.settings.pack?fm(S.settings.pack):''}" placeholder="0"></div>
+      <label class="row" style="margin-top:8px;font-size:13px"><input type="checkbox" id="rts" ${S.settings.returnToStock?'checked':''}> Hàng khách trả về còn bán lại được (không tính giá vốn)</label>
+      <p class="desc" style="margin:4px 0 0 24px">Chỉ áp dụng cho đơn khách đã nhận rồi trả lại. Đơn hủy và giao thất bại luôn được tính là hàng về kho.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row" style="margin-bottom:12px"><input id="cq" placeholder="Tìm sản phẩm…" value="${esc(CF.q)}" style="flex:1;min-width:200px">
+      <label class="row" style="font-size:13px;gap:6px"><input type="checkbox" id="onlyMiss" ${CF.onlyMissing?'checked':''}> Chỉ hiện sản phẩm chưa có giá</label></div>
+    <div class="tbl"><table>
+      <tr><th>Sản phẩm</th><th class="n">Đã bán</th><th class="n">Giá bán</th><th class="n">Giá vốn / sp</th><th class="n">Lãi ${mShort(month)}</th><th class="n">Biên</th></tr>
+      ${shown.map(p=>{const a=agg[p.sku]; return `<tr><td><div class="pname">${esc(p.name)}</div><div class="muted" style="font-size:12px">${esc(p.varn)}</div></td>
+        <td class="n">${p.n}</td><td class="n">${fm(p.price)}</td>
+        <td class="n"><input class="money" data-sku="${p.sku}" value="${S.cogs[p.sku]!=null&&S.cogs[p.sku]!==''?fm(S.cogs[p.sku]):''}" placeholder="nhập giá" inputmode="numeric">${S.cogsEst[p.sku]?'<div class="warn" style="font-size:11px">tạm tính</div>':''}</td>
+        <td class="n">${a&&!isMissing(p)?fmc(a.profit):'<span class="muted">—</span>'}</td><td class="n">${a&&a.rev&&!isMissing(p)?pct(a.profit/a.rev):''}</td></tr>`;}).join('')}
+    </table></div>
+    ${!shown.length?'<div class="empty">Không có sản phẩm nào.</div>':''}
+  </div>`;
+  $$('[data-sku]').forEach(inp=>inp.onchange=async()=>{ const k=inp.dataset.sku, v=inp.value.trim(); if(v==='') delete S.cogs[k]; else { S.cogs[k]=num(v); inp.value=fm(S.cogs[k]); } delete S.cogsEst[k];
+    await save(); compute(); renderChrome(); });
+  $('#cq').oninput=e=>{CF.q=e.target.value; clearTimeout(window._cq); window._cq=setTimeout(()=>{renderCogs(); const q=$('#cq'); q.focus(); q.setSelectionRange(q.value.length,q.value.length);},250);};
+  $('#onlyMiss').onchange=e=>{CF.onlyMissing=e.target.checked; renderCogs();};
+  $('#pack').onchange=async e=>{ S.settings.pack=num(e.target.value); await save(); compute(); renderCogs(); };
+  $('#rts').onchange=async e=>{ S.settings.returnToStock=e.target.checked; await save(); compute(); renderCogs(); };
+  $('#estGo').onclick=async()=>{ const p=num($('#estPct').value); if(!(p>0&&p<100)){ alert('Nhập % từ 1 đến 99'); return; } CF.pct=p;
+    for(const x of ps) if(isMissing(x)){ S.cogs[x.sku]=Math.round(x.price*p/100); S.cogsEst[x.sku]=true; }
+    await save(); compute(); render(); };
+  if($('#estClr')) $('#estClr').onclick=async()=>{ for(const k in S.cogsEst) delete S.cogs[k]; S.cogsEst={}; await save(); compute(); render(); };
+  $('#expC').onclick=()=>{ const ws=XLSX.utils.json_to_sheet(ps.map(p=>({'SKU ID':p.sku,'Tên sản phẩm':p.name,'Phân loại':p.varn,'Đã bán':p.n,'Giá bán gần nhất':Math.round(p.price),'Giá vốn':S.cogsEst[p.sku]?'':(S.cogs[p.sku]??'')})));
+    ws['!cols']=[{wch:22},{wch:60},{wch:30},{wch:8},{wch:16},{wch:12}]; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Giá vốn'); wb.Props=XLSX_PROPS; XLSX.writeFile(wb,'gia-von-tiktok-shop.xlsx'); };
+  $('#impC').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}); const rows=toObjects(sheetRows(wb.Sheets[wb.SheetNames[0]]));
+    let n=0; for(const r of rows){ const sku=String(r['SKU ID']||'').trim(); const v=String(r['Giá vốn']??'').trim(); if(sku&&v!==''){ S.cogs[sku]=num(v); delete S.cogsEst[sku]; n++; } }
+    await save(); compute(); render(); alert(`Đã nhập giá vốn cho ${n} sản phẩm.`); };
+}
+
+/* ---------- Hướng dẫn ---------- */
+function renderGuide(){
+  const m = month || new Date().toISOString().slice(0,7);
+  // kỳ báo cáo tiếp theo cần làm = tháng trước của tháng hiện tại theo lịch
+  const today=new Date(); const cur=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`; const rep=prevMonth(cur), rp=prevMonth(rep);
+  const r2=rep.slice(5,7), p2=rp.slice(5,7), c2=cur.slice(5,7);
+  const hasData = M.lines.length || Object.keys(S.orders).length;
+  const term=(t,d)=>`<div class="chk"><div class="ic na" style="background:var(--accent-soft);color:var(--accent)">i</div><div><div class="t">${t}</div><div class="d" style="font-size:13px">${d}</div></div></div>`;
+  const faq=(q,a)=>`<details class="faq"><summary>${q}</summary><div class="d">${a}</div></details>`;
+  $('#page').innerHTML=`
+  <div class="callout"><b>Ý tưởng chính:</b> mỗi tháng chỉ tính những đồng tiền TikTok <b>đã quyết toán trong tháng đó</b>. Đơn đặt lúc nào không quan trọng. Nhờ vậy báo cáo không bị lệch giữa các tháng và luôn khớp với tiền về ví.</div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Lần đầu sử dụng</h2><p class="desc">Làm một lần, khoảng 15–30 phút</p>
+      <ol class="steps">
+        <li><b>Tải dữ liệu từ Seller Center</b><div class="muted" style="font-size:13px">File quyết toán (income) của tháng muốn báo cáo, và file Tất cả đơn hàng của tháng đó cùng tháng trước. Kéo cả hai vào trang Tải dữ liệu.</div>
+          <button class="btn sm" style="margin-top:6px" onclick="go('data')">Mở trang Tải dữ liệu</button></li>
+        <li><b>Nhập giá vốn</b><div class="muted" style="font-size:13px">Vào trang Giá vốn, bấm "Xuất file Excel", điền cột Giá vốn (giá nhập + ship về kho cho 1 sản phẩm), rồi bấm "Nhập file". Nếu chưa có số liệu ngay, có thể điền tạm theo % giá bán.</div>
+          <button class="btn sm" style="margin-top:6px" onclick="go('cogs')">Mở trang Giá vốn</button></li>
+        <li><b>Nhập chi phí đóng gói</b><div class="muted" style="font-size:13px">Ở trang Giá vốn, mục "Cài đặt tính giá vốn" (hộp, băng keo, xốp… cho 1 đơn).</div></li>
+        <li><b>Xem Tổng quan</b><div class="muted" style="font-size:13px">Làm theo các mục còn đỏ trong phần "Độ chính xác của báo cáo" cho đến khi tất cả xanh.</div>
+          <button class="btn sm" style="margin-top:6px" onclick="go('home')">Mở Tổng quan</button></li>
+      </ol></div>
+
+    <div class="card"><h2>Việc cần làm mỗi tháng</h2><p class="desc">Từ ngày 1 đến 5 hằng tháng. Ví dụ: đầu ${monthLabel(cur).toLowerCase()} làm báo cáo ${monthLabel(rep).toLowerCase()}.</p>
+      <ol class="steps">
+        <li><b>Xuất file quyết toán (income)</b><div class="muted" style="font-size:13px">Seller Center → Tài chính → Báo cáo quyết toán → chọn <b>01/${r2} – ${lastDay(rep)}/${r2}</b> → Xuất.</div></li>
+        <li><b>Xuất file Tất cả đơn hàng</b><div class="muted" style="font-size:13px">Seller Center → Đơn hàng → Xuất, lọc theo ngày đặt <b>01/${p2} – ${lastDay(rep)}/${r2}</b>. Lấy lùi 1 tháng để có đơn tháng trước quyết toán sang tháng này.</div></li>
+        <li><b>Kéo hai file vào trang Tải dữ liệu</b><div class="muted" style="font-size:13px">Tải trùng không sao. Đơn cũ sẽ tự cập nhật trạng thái mới.</div></li>
+        <li><b>Nhập giá vốn cho sản phẩm mới</b><div class="muted" style="font-size:13px">Biểu tượng số màu cam cạnh mục "Giá vốn" ở menu cho biết còn bao nhiêu sản phẩm chưa có giá.</div></li>
+        <li><b>Nhập chi phí ngoài sàn</b><div class="muted" style="font-size:13px">Trang Lãi lỗ tháng: quảng cáo nạp ngoài sàn, lương, mặt bằng, ship hoàn sàn không bù… Không có thì tick "Đã nhập đủ".</div></li>
+        <li><b>Kiểm tra rồi chốt sổ</b><div class="muted" style="font-size:13px">Khi phần Độ chính xác đã xanh hết, bấm "Chốt sổ tháng này", "Xuất Excel" để lưu báo cáo, rồi "Sao lưu" ở trang Tải dữ liệu.</div></li>
+      </ol></div>
+  </div>
+
+  <div class="card"><h2>Hiểu các con số</h2><p class="desc">Đọc theo thứ tự từ trên xuống, giống trang Tổng quan</p>
+    <div class="grid g2" style="gap:0 24px">
+      <div>
+        ${term('Doanh thu thuần','Giá bán (sau giảm giá của shop) trừ đi tiền đã hoàn cho khách. Voucher do TikTok tài trợ không làm giảm số này.')}
+        ${term('Phí & thuế sàn','Phí giao dịch, hoa hồng TikTok, phí dịch vụ (Xtra, SFR…), hoa hồng KOC, phí ship ròng, thuế GTGT + TNCN sàn khấu trừ.')}
+        ${term('Tiền thực nhận','Số tiền TikTok thực sự chuyển vào ví. Luôn chính xác vì được đối chiếu với lịch sử ví (dấu ✓ khớp ví).')}
+        ${term('Lợi nhuận gộp','Tiền thực nhận trừ giá vốn và đóng gói. Chỉ đúng khi đã có đủ giá vốn.')}
+        ${term('Lợi nhuận ròng','Lợi nhuận gộp trừ chi phí ngoài sàn. Đây là số tiền bạn thực sự lời trong tháng.')}
+      </div>
+      <div>
+        ${term('Tạm tính và Chính xác','"Tạm tính" nghĩa là còn thiếu dữ liệu (giá vốn, file đơn, chi phí). Khi đủ, nhãn đổi thành "Chính xác".')}
+        ${term('Đơn treo','Đơn đã đặt trước cuối tháng nhưng TikTok chưa quyết toán. Chưa tính vào tháng này mà sẽ tự vào báo cáo tháng sau.')}
+        ${term('Tiền sắp về','Ước tính số tiền của các đơn treo sẽ về ví, dựa trên tỷ lệ thực nhận thực tế của shop.')}
+        ${term('Sàn bồi hoàn','Tiền TikTok trả lại cho shop khi khách khiếu nại/hoàn tiền mà lỗi không thuộc về shop. Được cộng vào tiền thực nhận.')}
+        ${term('Chốt sổ','Khóa số liệu tháng đã báo cáo. Mọi thay đổi sau đó (hoàn tiền muộn…) sẽ ghi vào tháng hiện tại, không sửa tháng cũ.')}
+      </div>
+    </div></div>
+
+  <div class="card"><h2>Tình trạng đơn hàng</h2><p class="desc">Ảnh hưởng của từng loại đơn đến tiền và lãi/lỗ</p>
+    <div class="tbl"><table><tr><th>Tình trạng</th><th>Nghĩa là</th><th>Ảnh hưởng lãi/lỗ</th></tr>
+      <tr><td><span class="tag t-ok">Đã quyết toán</span></td><td>Giao thành công, TikTok đã trả tiền</td><td>Tính vào tháng quyết toán</td></tr>
+      <tr><td><span class="tag t-info">Chờ quyết toán</span></td><td>Đã hoàn tất, đang chờ TikTok trả tiền (thường vài ngày)</td><td>Chưa tính, nằm trong đơn treo</td></tr>
+      <tr><td><span class="tag t-warn">Đang giao</span></td><td>Đang vận chuyển, hoặc đã giao nhưng còn trong thời hạn trả hàng</td><td>Chưa tính, nằm trong đơn treo</td></tr>
+      <tr><td><span class="tag">Hủy trước giao</span></td><td>Hủy khi hàng chưa gửi đi</td><td>Bằng 0, không lời không lỗ</td></tr>
+      <tr><td><span class="tag t-bad">Giao thất bại</span></td><td>Khách không nhận, hàng quay về kho</td><td>Mất phí ship hai chiều, không mất giá vốn</td></tr>
+      <tr><td><span class="tag t-bad">Trả hàng / hoàn tiền</span></td><td>Khách đã nhận rồi trả lại hoặc được hoàn tiền</td><td>Doanh thu bị trừ, phí sàn có thể không được hoàn</td></tr>
+      <tr><td><span class="tag t-warn">Thiếu file đơn</span></td><td>Có tiền quyết toán nhưng chưa tải file đơn của tháng đặt hàng</td><td>Tiền đúng, nhưng chưa tính được giá vốn</td></tr>
+    </table></div></div>
+
+  <div class="card"><h2>Câu hỏi thường gặp</h2>
+    ${faq('Vì sao doanh thu trong ứng dụng khác số trên Seller Center?','Seller Center thường thống kê theo <b>ngày đặt hàng</b> (GMV), gồm cả đơn sẽ bị hủy hoặc hoàn. Ứng dụng tính theo <b>ngày quyết toán</b> và chỉ gồm tiền đã chốt, nên khớp với tiền về ví. Hai số khác nhau là bình thường.')}
+    ${faq('Đơn đặt cuối tháng 10, sang tháng 11 mới quyết toán thì tính vào tháng nào?','Tháng 11. Ở báo cáo tháng 10, đơn đó nằm trong mục "Đơn treo".')}
+    ${faq('Khách hoàn tiền sau khi tôi đã chốt sổ tháng trước thì sao?','Khoản hoàn sẽ có ngày quyết toán mới nên tự động ghi vào tháng hiện tại. Tháng đã chốt giữ nguyên.')}
+    ${faq('Tôi tải trùng file hoặc tải lại file cũ có sao không?','Không sao. File quyết toán cùng kỳ sẽ thay bản cũ. File đơn hàng sẽ cập nhật trạng thái mới nhất cho từng đơn.')}
+    ${faq('Ô "Hàng khách trả về còn bán lại được" nên tick không?','Nên tick nếu phần lớn hàng trả về vẫn bán lại được. Ô này chỉ áp dụng cho đơn khách đã nhận rồi trả lại. Đơn hủy và giao thất bại luôn được tính là hàng về kho.')}
+    ${faq('Tiền quyết toán bị lệch so với tiền về ví?','Thường do file income không đủ cả tháng. Hãy xuất lại từ ngày 01 đến ngày cuối tháng và kéo vào lại.')}
+    ${faq('Giá vốn nên nhập thế nào?','Giá nhập 1 sản phẩm cộng với phần ship từ nhà cung cấp về kho chia đều cho mỗi sản phẩm. Không gồm phí đóng gói, vì phí đóng gói nhập riêng.')}
+    ${faq('Quảng cáo GMV Max có cần nhập vào chi phí ngoài sàn không?','Nếu GMV Max đã bị trừ thẳng trong file quyết toán (dòng "Quảng cáo GMV Max" trong bảng lãi lỗ) thì <b>không</b> nhập lại. Chỉ nhập khoản quảng cáo bạn nạp tiền riêng vào tài khoản TikTok Ads.')}
+    ${faq('Dữ liệu lưu ở đâu? Đổi máy thì sao?','Dữ liệu lưu trong trình duyệt trên máy này, không gửi đi đâu. Nếu xóa lịch sử duyệt web hoặc đổi máy sẽ mất. Hãy bấm "Tải bản sao lưu" ở trang Tải dữ liệu sau mỗi lần chốt sổ, và dùng "Khôi phục" trên máy mới.')}
+  </div>
+  ${hasData?'':`<div class="row" style="justify-content:center"><button class="btn primary" onclick="go('data')">Bắt đầu: tải dữ liệu →</button></div>`}`;
+}
+
+/* ---------- Tải dữ liệu ---------- */
+function renderData(){
+  const m=month||new Date().toISOString().slice(0,7); const pm=prevMonth(m); const mm=m.slice(5,7), pmm=pm.slice(5,7);
+  const inc=Object.entries(S.income).sort();
+  const om={}; Object.values(S.orders).forEach(o=>{const k=o.created.slice(0,7); om[k]=(om[k]||0)+1;});
+  const have=k=>!!om[k];
+  const haveInc=M.lines.some(l=>l.d.slice(0,7)===m);
+  $('#page').innerHTML=`
+  <div class="grid g-main">
+    <div class="card"><h2>Kéo file vào đây</h2><p class="desc">Ứng dụng tự nhận ra loại file. Tải trùng không sao, dữ liệu cũ sẽ được cập nhật.</p>
+      <div id="drop" class="drop"><div style="font-size:28px">⇪</div><b>Kéo thả hoặc bấm để chọn file</b><div style="font-size:12.5px;margin-top:4px">income_….xlsx và Tất cả đơn hàng-….xlsx · chọn nhiều file cùng lúc được</div><input type="file" id="files" multiple accept=".xlsx,.xls" hidden></div>
+      <div id="msg" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><h2>Cần gì để báo cáo ${monthLabel(m).toLowerCase()}?</h2><p class="desc">Lặp lại mỗi đầu tháng, từ ngày 1 đến ngày 5.</p>
+      <ol class="steps">
+        <li><b>File quyết toán (income)</b> ${haveInc?'<span class="tag t-ok">✓ đã có</span>':'<span class="tag t-bad">chưa có</span>'}<div class="muted" style="font-size:13px">Tài chính → Báo cáo quyết toán · <b>01/${mm} → ${lastDay(m)}/${mm}</b></div></li>
+        <li><b>File Tất cả đơn hàng</b> ${have(m)&&have(pm)?'<span class="tag t-ok">✓ đã có</span>':`<span class="tag t-bad">thiếu ${[!have(pm)&&mShort(pm),!have(m)&&mShort(m)].filter(Boolean).join(', ')}</span>`}<div class="muted" style="font-size:13px">Đơn hàng → Xuất, lọc theo ngày đặt · <b>01/${pmm} → ${lastDay(m)}/${mm}</b> (lấy lùi thêm 1 tháng)</div></li>
+        <li><b>Giá vốn và chi phí ngoài sàn</b><div class="muted" style="font-size:13px">Nhập ở trang <a href="#" onclick="go('cogs');return false">Giá vốn</a> và <a href="#" onclick="go('pl');return false">Lãi lỗ tháng</a>, rồi chốt sổ.</div></li>
+      </ol>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h2>File quyết toán đã tải</h2>
+      ${inc.length?`<table><tr><th>Kỳ</th><th class="n">Dòng</th><th class="n">Thực nhận</th><th></th></tr>${inc.map(([p,v])=>`<tr><td>${esc(p)}</td><td class="n">${v.lines.length}</td><td class="n">${fm(v.lines.reduce((s,l)=>s+l.amt,0))}</td><td class="n"><button class="btn sm danger" data-del="${esc(p)}">Xóa</button></td></tr>`).join('')}</table>`:'<p class="muted">Chưa có.</p>'}</div>
+    <div class="card"><h2>Đơn hàng đã tải</h2>
+      ${Object.keys(om).length?`<table><tr><th>Tháng đặt</th><th class="n">Số đơn</th></tr>${Object.entries(om).sort().map(([k,n])=>`<tr><td>${monthLabel(k)}</td><td class="n">${n}</td></tr>`).join('')}</table>`:'<p class="muted">Chưa có.</p>'}</div>
+  </div>
+  <div class="card"><h2>Sao lưu</h2><p class="desc">Dữ liệu nằm trong trình duyệt này. Nếu xóa lịch sử duyệt web hoặc đổi máy sẽ mất, nên sao lưu sau mỗi lần chốt sổ.</p>
+    <div class="row"><button class="btn" id="bk">Tải bản sao lưu (.json)</button><label class="btn">Khôi phục từ bản sao lưu<input type="file" id="rs" accept=".json" hidden></label>
+    <span class="spacer"></span><button class="btn danger" id="wipe">Xóa toàn bộ dữ liệu</button></div></div>`;
+  const drop=$('#drop'), fi=$('#files');
+  drop.onclick=()=>fi.click(); fi.onchange=()=>importFiles([...fi.files]);
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add('hover');}; drop.ondragleave=()=>drop.classList.remove('hover');
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove('hover');importFiles([...e.dataTransfer.files]);};
+  $$('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Xóa dữ liệu quyết toán kỳ '+b.dataset.del+'?')) return; delete S.income[b.dataset.del]; await save(); refresh(); });
+  $('#bk').onclick=()=>{ const blob=new Blob([JSON.stringify({_app:{name:APP.name,author:APP.author,id:APP.id,exported:new Date().toISOString()},...S})],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`doi-soat-tiktok-${new Date().toISOString().slice(0,10)}.json`; a.click(); };
+  $('#rs').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const v=JSON.parse(await f.text()); if(!v.income||!v.orders) throw 0; delete v._app; S=Object.assign(blankState(),v); await save(); refresh(); alert('Đã khôi phục.'); }catch(_){ alert('File sao lưu không hợp lệ.'); } };
+  $('#wipe').onclick=async()=>{ if(!confirm('Xóa TOÀN BỘ dữ liệu (đơn hàng, quyết toán, giá vốn, sổ đã chốt)? Không thể hoàn tác, nên sao lưu trước.')) return; S=blankState(); await save(); refresh(); };
+}
+async function importBuffer(name, buf){
+  const r=parseWorkbook(name,buf);
+  if(r.kind==='income'){ const replaced=!!S.income[r.period]; S.income[r.period]={name, lines:r.lines, earnings:r.earnings, withdrawals:r.withdrawals};
+    return `${name}: ${r.lines.length} dòng quyết toán, kỳ ${r.period}${replaced?' (thay bản cũ cùng kỳ)':''}`; }
+  const n=Object.keys(r.orders).length; let upd=0; for(const id in r.orders){ if(S.orders[id]) upd++; S.orders[id]=r.orders[id]; }
+  return `${name}: ${n} đơn hàng (${n-upd} mới, ${upd} cập nhật trạng thái)`;
+}
+async function importFiles(files){
+  const out=[];
+  for(const f of files){ try{ out.push([true, await importBuffer(f.name, await f.arrayBuffer())]); }catch(e){ out.push([false, `${f.name}: ${e.message}`]); } }
+  await save(); refresh();
+  if($('#msg')) $('#msg').innerHTML=out.map(([ok,s])=>`<div class="callout ${ok?'ok':'bad'}" style="margin-bottom:8px">${ok?'✓':'✗'} ${esc(s)}</div>`).join('');
+}
+function exportMonth(m){
+  const rows=M.lines.filter(l=>l.d.slice(0,7)===m).map(l=>{ const x=M.byId[l.oid]; return {
+    'Mã đơn':l.oid, 'Mã giao dịch':l.ref, 'Loại':l.adjust?'Sàn bồi hoàn':'Đơn hàng', 'Ngày đặt':l.c, 'Ngày quyết toán':l.d, 'Tình trạng đơn':CAT[x.cat][0],
+    'Sản phẩm': x.o? x.o.skus.map(s=>s.name+' / '+s.varn+' x'+s.qty).join('; '):'',
+    'Doanh thu':l.S, 'Hoàn tiền':l.R, ...Object.fromEntries(FEE_LABELS.map((lb,i)=>[lb,Math.round(l.f[i])])), 'Tổng phí':l.fee, 'Điều chỉnh':l.adj,
+    'Thực nhận':l.amt, 'Giá vốn':Math.round(l.cogs), 'Đóng gói':l.pack, 'Lợi nhuận':Math.round(l.profit), 'Thiếu giá vốn':l.cogsUnknown?'x':'' }; });
+  const p=pendingAt(m); const pend=[...p.delivered,...p.shipping].map(x=>({'Mã đơn':x.id,'Ngày đặt':x.created,'Tình trạng hiện tại':CAT[x.cat][0],'Giá trị hàng':x.G,'Sản phẩm':x.o.skus.map(s=>s.name+' x'+s.qty).join('; ')}));
+  const t=plFor(m);
+  const sum=[['Báo cáo lãi lỗ '+monthLabel(m).toLowerCase()],[],['Khoản mục','Số tiền'],['Doanh thu bán hàng',t.S],['Hoàn tiền',t.R],['Doanh thu thuần',t.rev],...FEE_LABELS.map((lb,i)=>['  '+lb,Math.round(t.f[i])]),['Tổng phí & thuế sàn',t.fee],['Sàn bồi hoàn / điều chỉnh',t.adj],['Tiền thực nhận',t.amt],['Tiền về ví (đối chiếu)',t.earn],['Giá vốn',-Math.round(t.cogs)],['Đóng gói',-t.pack],['Lợi nhuận gộp',Math.round(t.profit)],...t.costs.items.map(i=>['  '+i.lb,-i.v]),['Chi phí ngoài sàn',-t.ext],['LỢI NHUẬN RÒNG',Math.round(t.final)]];
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(sum); ws['!cols']=[{wch:40},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws,'Lãi lỗ');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Chi tiết quyết toán');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(pend),'Đơn treo cuối tháng');
+  wb.Props=XLSX_PROPS; XLSX.writeFile(wb,`bao-cao-${m}.xlsx`);
+}
+
+/* ===================== Khởi động ===================== */
+function refresh(){ compute(); if(!M.months.includes(month)) month=M.months[M.months.length-1]||''; render(); }
+$$('.nav').forEach(b=>b.onclick=()=>go(b.dataset.t));
+$('#mPrev').onclick=()=>{ const i=M.months.indexOf(month); if(i>0) setMonth(M.months[i-1]); };
+$('#mNext').onclick=()=>{ const i=M.months.indexOf(month); if(i<M.months.length-1) setMonth(M.months[i+1]); };
+$('#overlay').onclick=e=>{ if(e.target.id==='overlay') closeDrawer(); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer();
+  if(e.ctrlKey && e.altKey && (e.key==='i'||e.key==='I')) showAbout(); });
+// Bấm 5 lần liên tiếp vào logo hoặc dòng bản quyền để mở thông tin ứng dụng
+(()=>{ let n=0, tm; const hit=()=>{ n++; clearTimeout(tm); tm=setTimeout(()=>n=0,1500); if(n>=5){ n=0; showAbout(); } };
+  $('.brand .logo').addEventListener('click',hit); $('#sig').addEventListener('click',hit); })();
+(async()=>{ await load(); refresh(); if(!M.lines.length && !Object.keys(S.orders).length) go('guide'); })();
+</script>
+</body>
+</html>

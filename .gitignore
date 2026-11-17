@@ -1,0 +1,6 @@
+# Dữ liệu kinh doanh riêng: KHÔNG đưa lên GitHub
+*.xlsx
+*.xls
+*.csv
+*.json
+~$*
